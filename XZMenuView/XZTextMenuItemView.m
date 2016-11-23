@@ -7,14 +7,23 @@
 //
 
 #import "XZTextMenuItemView.h"
-#import <objc/runtime.h>
 
-static NSString *const XZTextMenuItemViewTextColorAnimationKey = @"XZTextMenuItemViewAnimationKey.textColor";
-static NSString *const XZTextMenuItemViewTextScaleAnimationKey = @"XZTextMenuItemViewAnimationKey.textScale";
 
-static const void *const _contentLayer = &_contentLayer;
-static const void *const _animationUpdateKey = &_animationUpdateKey;
-static const void *const _stateColorKey = &_stateColorKey;
+static NSString *const XZTextMenuItemViewTextColorAnimationKey = @"XZTextMenuItemViewAnimationKey.Color";
+static NSString *const XZTextMenuItemViewTextScaleAnimationKey = @"XZTextMenuItemViewAnimationKey.Scale";
+
+static CALayer *XZTextMenuItemViewContentLayer(XZTextMenuItemView * _Nonnull view, BOOL lazyLoad);
+static CFMutableDictionaryRef XZTextMenuItemViewStateColors(XZTextMenuItemView * _Nonnull view, BOOL lazyLoad);
+
+/** 查询 XZTextMenuItemView 当前是否需要更新动画效果，并同时设置新值。 */
+static BOOL XZTextMenuItemViewNeedsUpdateAnimation(XZTextMenuItemView * _Nonnull view, BOOL setNeeds);
+
+
+
+
+@interface _XZTextMenuItemViewLabel : UILabel
+
+@end
 
 @interface XZTextMenuItemView ()
 
@@ -23,115 +32,81 @@ static const void *const _stateColorKey = &_stateColorKey;
 @implementation XZTextMenuItemView
 
 - (void)dealloc {
-    CFMutableDictionaryRef dictRef = (__bridge CFMutableDictionaryRef)objc_getAssociatedObject(self, _stateColorKey);
+    CFMutableDictionaryRef dictRef = XZTextMenuItemViewStateColors(self, NO);
     if (dictRef != NULL) {
         CFRelease(dictRef);
     }
 }
 
 - (instancetype)initWithFrame:(CGRect)frame {
+    return [self initWithFrame:frame transitionOptions:(XZTextMenuItemViewTransitionOptionNone)];
+}
+
+- (instancetype)initWithFrame:(CGRect)frame transitionOptions:(XZTextMenuItemViewTransitionOptions)transitionOptions {
     self = [super initWithFrame:frame];
     if (self) {
-        [self PD_viewDidInitialize];
+        [self XZ_viewDidInitializeWithTransitionOptions:transitionOptions];
     }
     return self;
 }
 
-- (void)layoutSubviews {
-    [super layoutSubviews];
-    CALayer *contentLayer = objc_getAssociatedObject(self, _contentLayer);
-    contentLayer.frame = self.bounds;
-    _contentView.frame = contentLayer.bounds;
-    [_contentView layoutIfNeeded];
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        [self XZ_viewDidInitializeWithTransitionOptions:(XZTextMenuItemViewTransitionOptionNone)];
+    }
+    return self;
 }
 
-- (void)PD_viewDidInitialize {
+- (void)XZ_viewDidInitializeWithTransitionOptions:(XZTextMenuItemViewTransitionOptions)transitionOptions {
     self.backgroundColor = [UIColor clearColor];
     
-    CALayer *contentLayer = [[CALayer alloc] init];
+    [CATransaction setDisableActions:YES];
+    CALayer *contentLayer = XZTextMenuItemViewContentLayer(self, YES);
     contentLayer.frame = self.bounds;
     contentLayer.speed = 0;
     [self.layer addSublayer:contentLayer];
-    objc_setAssociatedObject(self, _contentLayer, contentLayer, OBJC_ASSOCIATION_ASSIGN);
     
-    _contentView = [[UIView alloc] initWithFrame:contentLayer.bounds];
-    _contentView.layer.backgroundColor = [UIColor clearColor].CGColor;
-    contentLayer.mask = _contentView.layer;
     
-    [self XZ_setNeedsAnimationUpdate];
+    _animationView = [[UIView alloc] initWithFrame:contentLayer.bounds];
+    _animationView.layer.backgroundColor = [UIColor clearColor].CGColor;
+    contentLayer.mask = _animationView.layer;
+    [CATransaction setDisableActions:NO];
     
-//    UIView *containerView = [[UIView alloc] initWithFrame:self.bounds];
-//    containerView.layer.backgroundColor = [UIColor clearColor].CGColor;
-//    [_contentView addSubview:containerView];
-//    
-//    containerView.translatesAutoresizingMaskIntoConstraints = NO;
-//    {
-//        NSLayoutConstraint *const1 = [NSLayoutConstraint constraintWithItem:containerView attribute:(NSLayoutAttributeCenterX) relatedBy:(NSLayoutRelationEqual) toItem:_contentView attribute:(NSLayoutAttributeCenterX) multiplier:1.0 constant:0];
-//        NSLayoutConstraint *const2 = [NSLayoutConstraint constraintWithItem:containerView attribute:(NSLayoutAttributeCenterY) relatedBy:(NSLayoutRelationEqual) toItem:_contentView attribute:(NSLayoutAttributeCenterY) multiplier:1.0 constant:0];
-//        [_contentView addConstraint:const1];
-//        [_contentView addConstraint:const2];
-//    }
+    _transitionOptions = transitionOptions;
+    //[self setNeedsTransitonAppearanceUpdate];
     
-//    _titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 15, 15)];
-//    _titleLabel.backgroundColor = [UIColor clearColor];
-//    _titleLabel.textColor = [UIColor redColor];
-//    _titleLabel.font = [UIFont systemFontOfSize:18.0];
-//    [containerView addSubview:_titleLabel];
-//    
-//    _titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
-//    {
-//        NSArray *consts1 = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_titleLabel]" options:(NSLayoutFormatAlignAllLeft) metrics:nil views:NSDictionaryOfVariableBindings(_titleLabel)];
-//        NSArray *consts2 = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[_titleLabel]|" options:(NSLayoutFormatAlignAllLeft) metrics:nil views:NSDictionaryOfVariableBindings(_titleLabel)];
-//        [containerView addConstraints:consts1];
-//        [containerView addConstraints:consts2];
-//    }
-//    
-//    _seperatorView = [[UIView alloc] init];
-//    _seperatorView.backgroundColor = [UIColor whiteColor];
-//    [containerView addSubview:_seperatorView];
-//    
-//    _seperatorView.translatesAutoresizingMaskIntoConstraints = NO;
-//    {
-//        NSArray *consts1 = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[_seperatorView]|" options:(NSLayoutFormatAlignAllLeft) metrics:nil views:NSDictionaryOfVariableBindings(_seperatorView)];
-//        NSArray *consts2 = [NSLayoutConstraint constraintsWithVisualFormat:@"H:[_titleLabel]-3-[_seperatorView(==0.5)]" options:(NSLayoutFormatDirectionLeadingToTrailing) metrics:nil views:NSDictionaryOfVariableBindings(_titleLabel, _seperatorView)];
-//        [containerView addConstraints:consts1];
-//        [containerView addConstraints:consts2];
-//    }
-//    
-//    _subtitleLabel = [[UILabel alloc] init];
-//    _subtitleLabel.backgroundColor = [UIColor clearColor];
-//    _subtitleLabel.textColor = [UIColor whiteColor];
-//    _subtitleLabel.adjustsFontSizeToFitWidth = YES;
-//    _subtitleLabel.numberOfLines = 0;
-//    [_subtitleLabel setContentCompressionResistancePriority:(UILayoutPriorityDefaultLow) forAxis:(UILayoutConstraintAxisVertical)];
-//    _subtitleLabel.font = [UIFont systemFontOfSize:9.0];
-//    [containerView addSubview:_subtitleLabel];
-//    
-//    _subtitleLabel.translatesAutoresizingMaskIntoConstraints = NO;
-//    {
-//        NSLayoutConstraint *const1 = [NSLayoutConstraint constraintWithItem:_subtitleLabel attribute:(NSLayoutAttributeHeight) relatedBy:(NSLayoutRelationEqual) toItem:_titleLabel attribute:(NSLayoutAttributeHeight) multiplier:1.0 constant:0];
-//        NSLayoutConstraint *const2 = [NSLayoutConstraint constraintWithItem:_subtitleLabel attribute:(NSLayoutAttributeCenterY) relatedBy:(NSLayoutRelationEqual) toItem:_titleLabel attribute:(NSLayoutAttributeCenterY) multiplier:1.0 constant:0];
-//        [containerView addConstraint:const1];
-//        [containerView addConstraint:const2];
-//        
-//        NSArray *consts2 = [NSLayoutConstraint constraintsWithVisualFormat:@"H:[_seperatorView]-3-[_subtitleLabel(<=12)]|" options:(NSLayoutFormatDirectionLeadingToTrailing) metrics:nil views:NSDictionaryOfVariableBindings(_seperatorView, _subtitleLabel)];
-//        [containerView addConstraints:consts2];
-//    }
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    NSLog(@"<%p: %@>: %s", self, _textLabel.text, __func__);
+    
+    [CATransaction setDisableActions:YES];
+    CALayer *contentLayer = XZTextMenuItemViewContentLayer(self, NO);
+    contentLayer.timeOffset = 0;
+    contentLayer.frame = self.bounds; // CGRectApplyAffineTransform(self.bounds, CGAffineTransformMakeScale(1 + 0.1 * _transition, 1.0 + 0.1 * _transition));
+    //[contentLayer layoutIfNeeded];
+    [CATransaction setDisableActions:NO];
+    _animationView.frame = contentLayer.bounds;
+    [self setNeedsTransitonAppearanceUpdate];
+}
+
+- (void)didMoveToWindow {
+    [super didMoveToWindow];
+    
+    XZTextMenuItemViewContentLayer(self, NO).timeOffset = _transition;
 }
 
 - (void)setTextColor:(UIColor *)titleColor forState:(UIControlState)state {
-    CFMutableDictionaryRef dictRef = (__bridge CFMutableDictionaryRef)objc_getAssociatedObject(self, _stateColorKey);
-    if (dictRef == nil) {
-        dictRef = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-        objc_setAssociatedObject(self, _stateColorKey, (__bridge id)(dictRef), OBJC_ASSOCIATION_ASSIGN);
-    }
-    CFDictionarySetValue(dictRef, (__bridge const void *)(@(state)), (__bridge const void *)(titleColor));
+    CFDictionarySetValue(XZTextMenuItemViewStateColors(self, YES), (__bridge const void *)(@(state)), (__bridge const void *)(titleColor));
+    [self setNeedsTransitonAppearanceUpdate];
 }
 
 - (UIColor *)textColorForState:(UIControlState)state {
-    CFMutableDictionaryRef dictRef = (__bridge CFMutableDictionaryRef)objc_getAssociatedObject(self, _stateColorKey);
+    CFMutableDictionaryRef dictRef = XZTextMenuItemViewStateColors(self, NO);
     if (dictRef != NULL) {
-        return CFDictionaryGetValue((__bridge CFMutableDictionaryRef)objc_getAssociatedObject(self, _stateColorKey), (__bridge const void *)(@(state)));
+        return CFDictionaryGetValue(dictRef, (__bridge const void *)(@(state)));
     }
     return nil;
 }
@@ -140,7 +115,10 @@ static const void *const _stateColorKey = &_stateColorKey;
 - (void)setTransition:(CGFloat)transition {
     if (_transition != transition) {
         _transition = transition;
-        ((CALayer *)objc_getAssociatedObject(self, _contentLayer)).timeOffset = _transition;
+        NSLog(@"<%p: %@>: (%f)[%f -> %f]", self, _textLabel.text, XZTextMenuItemViewContentLayer(self, NO).beginTime, XZTextMenuItemViewContentLayer(self, NO).timeOffset, _transition);
+        if (self.window != nil) {
+            XZTextMenuItemViewContentLayer(self, NO).timeOffset = _transition;
+        }
     }
 }
 
@@ -148,59 +126,117 @@ static const void *const _stateColorKey = &_stateColorKey;
     if (_textLabel != nil) {
         return _textLabel;
     }
-    _textLabel = [[UILabel alloc] initWithFrame:_contentView.bounds];
+    _textLabel = [[_XZTextMenuItemViewLabel alloc] initWithFrame:_animationView.bounds];
+    _textLabel.textColor = [UIColor whiteColor];
     _textLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _textLabel.textAlignment = NSTextAlignmentCenter;
-    [_contentView addSubview:_textLabel];
+    //_textLabel.layer.borderColor = [UIColor whiteColor].CGColor;
+    //_textLabel.layer.borderWidth = 1.0;
+    [_animationView addSubview:_textLabel];
     return _textLabel;
 }
 
-- (void)setTransitionType:(XZTextMenuItemViewTransitionType)transitionType {
-    if (_transitionType != transitionType) {
-        _transitionType = transitionType;
-        [self XZ_setNeedsAnimationUpdate];
+- (void)setTransitionOptions:(XZTextMenuItemViewTransitionOptions)transitionOptions {
+    if (_transitionOptions != transitionOptions) {
+        _transitionOptions = transitionOptions;
+        [self setNeedsTransitonAppearanceUpdate];
     }
 }
 
-- (void)XZ_setNeedsAnimationUpdate {
-    if (objc_getAssociatedObject(self, _animationUpdateKey) == nil) {
-        objc_setAssociatedObject(self, _animationUpdateKey, @(YES), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+#pragma mark - Private Methods
+
+- (void)setNeedsTransitonAppearanceUpdate {
+    if (!XZTextMenuItemViewNeedsUpdateAnimation(self, YES)) {
         typeof(self) __weak weakSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
-            [weakSelf XZ_updateAnimationIfNeed];
+            [weakSelf updateTransitonAppearanceIfNeeded];
         });
     }
 }
 
-- (void)XZ_updateAnimationIfNeed {
-    if (objc_getAssociatedObject(self, _animationUpdateKey) != nil) {
-        objc_setAssociatedObject(self, _animationUpdateKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+- (void)updateTransitonAppearanceIfNeeded {
+    if (XZTextMenuItemViewNeedsUpdateAnimation(self, NO)) {
+        [CATransaction setDisableActions:YES];
+        NSLog(@"<%p: %@>: %s", self, _textLabel.text, __func__);
+        CALayer *contentLayer = XZTextMenuItemViewContentLayer(self, NO);
+        contentLayer.timeOffset = 0;
         
-        CALayer *contentLayer = objc_getAssociatedObject(self, _contentLayer);
+        UIColor *normalColor = [self textColorForState:(UIControlStateNormal)];
+        if (normalColor == nil) {
+            normalColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
+        }
+        
+        contentLayer.backgroundColor = normalColor.CGColor;
+        
         
         [contentLayer removeAnimationForKey:XZTextMenuItemViewTextColorAnimationKey];
-        if ((_transitionType & XZTextMenuItemViewTransitionTypeTextColor) == XZTextMenuItemViewTransitionTypeTextColor) {
+        if ((_transitionOptions & XZTextMenuItemViewTransitionOptionColor) == XZTextMenuItemViewTransitionOptionColor) {
             CABasicAnimation *backgroundcolorAnimation = [CABasicAnimation animationWithKeyPath:@"backgroundColor"];
-            UIColor *normalColor = ([self textColorForState:(UIControlStateNormal)] ?: [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0]);
-            contentLayer.backgroundColor = normalColor.CGColor;
             backgroundcolorAnimation.fromValue         = (__bridge id _Nullable)(normalColor.CGColor);
-            UIColor *selectedColor = ([self textColorForState:(UIControlStateNormal)] ?: [UIColor colorWithRed:0.8 green:0.2 blue:0.2 alpha:1.0]);
+            
+            UIColor *selectedColor = [self textColorForState:(UIControlStateSelected)];
+            if (selectedColor == nil) {
+                selectedColor = [UIColor colorWithRed:0.8 green:0.2 blue:0.2 alpha:1.0];
+            }
+            
             backgroundcolorAnimation.toValue           = (__bridge id _Nullable)(selectedColor.CGColor);
             backgroundcolorAnimation.duration          = 1.0;
             backgroundcolorAnimation.autoreverses      = NO;
+            backgroundcolorAnimation.beginTime         = 0;
             [contentLayer addAnimation:backgroundcolorAnimation forKey:XZTextMenuItemViewTextColorAnimationKey];
         }
         
         [contentLayer removeAnimationForKey:XZTextMenuItemViewTextScaleAnimationKey];
-        if ((_transitionType & XZTextMenuItemViewTransitionTypeTextScale) == XZTextMenuItemViewTransitionTypeTextScale) {
+        if ((_transitionOptions & XZTextMenuItemViewTransitionOptionScale) == XZTextMenuItemViewTransitionOptionScale) {
             CABasicAnimation *transformAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
             transformAnimation.fromValue    = [NSValue valueWithCATransform3D:CATransform3DMakeAffineTransform(CGAffineTransformIdentity)];
             transformAnimation.toValue      = [NSValue valueWithCATransform3D:CATransform3DMakeAffineTransform(CGAffineTransformMakeScale(1.20, 1.20))];
             transformAnimation.duration     = 1.0;
             transformAnimation.autoreverses = NO;
+            transformAnimation.beginTime    = 0;
             [contentLayer addAnimation:transformAnimation forKey:XZTextMenuItemViewTextScaleAnimationKey];
         }
+        
+        contentLayer.timeOffset = _transition;
+        [CATransaction setDisableActions:NO];
     }
 }
 
 @end
+
+@implementation _XZTextMenuItemViewLabel
+
+@end
+
+
+#import <objc/runtime.h>
+
+static CFMutableDictionaryRef XZTextMenuItemViewStateColors(XZTextMenuItemView *view, BOOL lazyLoad) {
+    static const void *const _stateColorKey = &_stateColorKey;
+    CFMutableDictionaryRef dictRef = (__bridge CFMutableDictionaryRef)(objc_getAssociatedObject(view, _stateColorKey));
+    if (dictRef == NULL && lazyLoad) {
+        dictRef = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+        objc_setAssociatedObject(view, _stateColorKey, (__bridge id)(dictRef), OBJC_ASSOCIATION_ASSIGN);
+    }
+    return dictRef;
+}
+
+static BOOL XZTextMenuItemViewNeedsUpdateAnimation(XZTextMenuItemView * _Nonnull view, BOOL setNeeds) {
+    static const void *const _animationNeedsUpdateKey = &_animationNeedsUpdateKey;
+    BOOL needs = (objc_getAssociatedObject(view, _animationNeedsUpdateKey) != nil);
+    if (needs != setNeeds) {
+        objc_setAssociatedObject(view, _animationNeedsUpdateKey, (setNeeds ? @(YES) : nil), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    return needs;
+}
+
+static CALayer *XZTextMenuItemViewContentLayer(XZTextMenuItemView * _Nonnull view, BOOL lazyLoad) {
+    static const void *const _contentLayer = &_contentLayer;
+    CALayer *layer = objc_getAssociatedObject(view, _contentLayer);
+    if (layer == nil && lazyLoad) {
+        layer = [[CALayer alloc] init];
+        objc_setAssociatedObject(view, _contentLayer, layer, OBJC_ASSOCIATION_ASSIGN);
+    }
+    return layer;
+}
+

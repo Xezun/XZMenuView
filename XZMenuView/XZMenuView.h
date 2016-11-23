@@ -76,6 +76,7 @@ typedef NS_ENUM(NSInteger, XZMenuViewScrollDirection) {
 @protocol XZMenuViewDelegate <NSObject>
 
 - (void)menuView:(XZMenuView *)menuView didSelectItemAtIndex:(NSInteger)index;
+- (CGFloat)menuView:(XZMenuView *)menuView widthForItemAtIndex:(NSInteger)index;
 
 @end
 

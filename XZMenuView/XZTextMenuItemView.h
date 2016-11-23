@@ -11,26 +11,29 @@
 
 @class UITableViewCell;
 
-typedef NS_OPTIONS(NSUInteger, XZTextMenuItemViewTransitionType) {
-    XZTextMenuItemViewTransitionTypeNone = 0,
-    XZTextMenuItemViewTransitionTypeTextColor = 1 << 0,
-    XZTextMenuItemViewTransitionTypeTextScale = 1 << 1
+typedef NS_OPTIONS(NSUInteger, XZTextMenuItemViewTransitionOptions) {
+    XZTextMenuItemViewTransitionOptionNone = 0,
+    XZTextMenuItemViewTransitionOptionColor = 1 << 0,
+    XZTextMenuItemViewTransitionOptionScale = 1 << 1
 };
 
 @interface XZTextMenuItemView : UIView <XZMenuItemView>
 
-@property (nonatomic) XZTextMenuItemViewTransitionType transitionType;
+@property (nonatomic) XZTextMenuItemViewTransitionOptions transitionOptions;
+@property (nonatomic, strong, readonly) UIView *animationView;
 
 @property (nonatomic, getter=isSelected) BOOL selected;
 @property (nonatomic, getter=isHighlighted) BOOL highlighted;
 @property (nonatomic) CGFloat transition;
 
-@property (nonatomic, strong, readonly) UIView *contentView;
+- (void)updateTransitonAppearanceIfNeeded;
+- (void)setNeedsTransitonAppearanceUpdate;
 
 @property (nonatomic, strong) UILabel *textLabel;
 
 - (void)setTextColor:(UIColor *)titleColor forState:(UIControlState)state;
 - (UIColor *)textColorForState:(UIControlState)state;
 
+- (instancetype)initWithFrame:(CGRect)frame transitionOptions:(XZTextMenuItemViewTransitionOptions)transitionOptions;
 
 @end

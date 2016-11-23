@@ -1,8 +1,8 @@
 //
 //  main.m
-//  Demo
+//  XZMenuView
 //
-//  Created by mlibai on 2016/11/21.
+//  Created by mlibai on 2016/11/23.
 //  Copyright © 2016年 mlibai. All rights reserved.
 //
 
