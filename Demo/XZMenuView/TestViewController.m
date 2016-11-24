@@ -13,6 +13,7 @@
 
 
 @property (strong, nonatomic) XZTextMenuItemView *textItemView;
+@property (weak, nonatomic) IBOutlet UISlider *slider;
 
 @end
 
@@ -27,6 +28,7 @@
     [self.view addSubview:self.textItemView];
     self.textItemView.textLabel.text = @"XZTextMenuItemView";
     self.textItemView.transition = 1.0;
+    self.slider.value = 1.0;
 }
 
 - (void)didReceiveMemoryWarning {

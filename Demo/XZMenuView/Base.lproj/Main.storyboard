@@ -74,8 +74,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="1" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="d0R-i2-YJV">
-                                <rect key="frame" x="-2" y="320" width="379" height="31"/>
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="-1" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="d0R-i2-YJV">
+                                <rect key="frame" x="48" y="320" width="279" height="31"/>
                                 <connections>
                                     <action selector="valueChanged:" destination="uht-kv-zTM" eventType="valueChanged" id="ZBM-r6-6Ld"/>
                                 </connections>
@@ -84,10 +84,13 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="d0R-i2-YJV" firstAttribute="top" secondItem="Er6-jK-6Dn" secondAttribute="bottom" constant="300" id="KXf-aS-yhf"/>
-                            <constraint firstItem="d0R-i2-YJV" firstAttribute="leading" secondItem="Cfb-aT-qRb" secondAttribute="leading" id="hUR-DX-j3V"/>
-                            <constraint firstAttribute="trailing" secondItem="d0R-i2-YJV" secondAttribute="trailing" id="omE-7q-tMh"/>
+                            <constraint firstItem="d0R-i2-YJV" firstAttribute="leading" secondItem="Cfb-aT-qRb" secondAttribute="leading" constant="50" id="hUR-DX-j3V"/>
+                            <constraint firstAttribute="trailing" secondItem="d0R-i2-YJV" secondAttribute="trailing" constant="50" id="omE-7q-tMh"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="slider" destination="d0R-i2-YJV" id="QIl-Ry-MAJ"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Z4h-e0-QXQ" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

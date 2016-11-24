@@ -8,9 +8,9 @@
 
 #import "XZTextMenuItemView.h"
 
-
-static NSString *const XZTextMenuItemViewTextColorAnimationKey = @"XZTextMenuItemViewAnimationKey.Color";
-static NSString *const XZTextMenuItemViewTextScaleAnimationKey = @"XZTextMenuItemViewAnimationKey.Scale";
+static NSString *const XZTextMenuItemViewAnimationKey = @"XZTextMenuItemViewAnimationKey";
+//static NSString *const XZTextMenuItemViewTextColorAnimationKey = @"XZTextMenuItemViewAnimationKey.Color";
+//static NSString *const XZTextMenuItemViewTextScaleAnimationKey = @"XZTextMenuItemViewAnimationKey.Scale";
 
 static CALayer *XZTextMenuItemViewContentLayer(XZTextMenuItemView * _Nonnull view, BOOL lazyLoad);
 static CFMutableDictionaryRef XZTextMenuItemViewStateColors(XZTextMenuItemView * _Nonnull view, BOOL lazyLoad);
@@ -25,7 +25,7 @@ static BOOL XZTextMenuItemViewNeedsUpdateAnimation(XZTextMenuItemView * _Nonnull
 
 @end
 
-@interface XZTextMenuItemView ()
+@interface XZTextMenuItemView () <CAAnimationDelegate>
 
 @end
 
@@ -60,11 +60,11 @@ static BOOL XZTextMenuItemViewNeedsUpdateAnimation(XZTextMenuItemView * _Nonnull
 
 - (void)XZ_viewDidInitializeWithTransitionOptions:(XZTextMenuItemViewTransitionOptions)transitionOptions {
     self.backgroundColor = [UIColor clearColor];
+    _transitionOptions = transitionOptions;
     
     [CATransaction setDisableActions:YES];
     CALayer *contentLayer = XZTextMenuItemViewContentLayer(self, YES);
     contentLayer.frame = self.bounds;
-    contentLayer.speed = 0;
     [self.layer addSublayer:contentLayer];
     
     
@@ -73,9 +73,7 @@ static BOOL XZTextMenuItemViewNeedsUpdateAnimation(XZTextMenuItemView * _Nonnull
     contentLayer.mask = _animationView.layer;
     [CATransaction setDisableActions:NO];
     
-    _transitionOptions = transitionOptions;
-    //[self setNeedsTransitonAppearanceUpdate];
-    
+    [self setNeedsTransitonAppearanceUpdate];
 }
 
 - (void)layoutSubviews {
@@ -84,18 +82,16 @@ static BOOL XZTextMenuItemViewNeedsUpdateAnimation(XZTextMenuItemView * _Nonnull
     
     [CATransaction setDisableActions:YES];
     CALayer *contentLayer = XZTextMenuItemViewContentLayer(self, NO);
-    contentLayer.timeOffset = 0;
-    contentLayer.frame = self.bounds; // CGRectApplyAffineTransform(self.bounds, CGAffineTransformMakeScale(1 + 0.1 * _transition, 1.0 + 0.1 * _transition));
-    //[contentLayer layoutIfNeeded];
+    contentLayer.frame = self.bounds;
     [CATransaction setDisableActions:NO];
+    
     _animationView.frame = contentLayer.bounds;
-    [self setNeedsTransitonAppearanceUpdate];
 }
 
 - (void)didMoveToWindow {
     [super didMoveToWindow];
     
-    XZTextMenuItemViewContentLayer(self, NO).timeOffset = _transition;
+    
 }
 
 - (void)setTextColor:(UIColor *)titleColor forState:(UIControlState)state {
@@ -115,10 +111,10 @@ static BOOL XZTextMenuItemViewNeedsUpdateAnimation(XZTextMenuItemView * _Nonnull
 - (void)setTransition:(CGFloat)transition {
     if (_transition != transition) {
         _transition = transition;
-        NSLog(@"<%p: %@>: (%f)[%f -> %f]", self, _textLabel.text, XZTextMenuItemViewContentLayer(self, NO).beginTime, XZTextMenuItemViewContentLayer(self, NO).timeOffset, _transition);
-        if (self.window != nil) {
-            XZTextMenuItemViewContentLayer(self, NO).timeOffset = _transition;
-        }
+        CALayer *contentLayer = XZTextMenuItemViewContentLayer(self, NO);
+        CAAnimation *animation = [contentLayer animationForKey:XZTextMenuItemViewAnimationKey];
+        NSLog(@"<%p: %@, contentLayer: {beiginTime=%f, timeOffset=%f}, animation: {beginTime=%f, timeOffset=%f}>", self, _textLabel.text, contentLayer.beginTime, contentLayer.timeOffset, animation.beginTime, animation.timeOffset);
+        contentLayer.timeOffset = animation.beginTime + transition;
     }
 }
 
@@ -130,8 +126,6 @@ static BOOL XZTextMenuItemViewNeedsUpdateAnimation(XZTextMenuItemView * _Nonnull
     _textLabel.textColor = [UIColor whiteColor];
     _textLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _textLabel.textAlignment = NSTextAlignmentCenter;
-    //_textLabel.layer.borderColor = [UIColor whiteColor].CGColor;
-    //_textLabel.layer.borderWidth = 1.0;
     [_animationView addSubview:_textLabel];
     return _textLabel;
 }
@@ -141,6 +135,22 @@ static BOOL XZTextMenuItemViewNeedsUpdateAnimation(XZTextMenuItemView * _Nonnull
         _transitionOptions = transitionOptions;
         [self setNeedsTransitonAppearanceUpdate];
     }
+}
+
+#pragma mark - <CAAnimationDelegate>
+
+- (void)animationDidStart:(CAAnimation *)anim {
+    NSLog(@"%s: %@", __func__, [(CAAnimationGroup *)anim animations]);
+//    XZTextMenuItemViewContentLayer(self, NO).speed = 0;
+//    XZTextMenuItemViewContentLayer(self, NO).timeOffset = _transition;
+    //anim.timeOffset = _transition;
+}
+
+- (void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag {
+    NSLog(@"%s: %@ %@", __func__, [(CAAnimationGroup *)anim animations], (flag ? @"YES" : @"NO"));
+    CALayer *contentLayer = XZTextMenuItemViewContentLayer(self, NO);
+    contentLayer.speed = 0;
+    contentLayer.timeOffset = anim.beginTime + _transition;
 }
 
 #pragma mark - Private Methods
@@ -157,9 +167,13 @@ static BOOL XZTextMenuItemViewNeedsUpdateAnimation(XZTextMenuItemView * _Nonnull
 - (void)updateTransitonAppearanceIfNeeded {
     if (XZTextMenuItemViewNeedsUpdateAnimation(self, NO)) {
         [CATransaction setDisableActions:YES];
+        
         NSLog(@"<%p: %@>: %s", self, _textLabel.text, __func__);
+        
         CALayer *contentLayer = XZTextMenuItemViewContentLayer(self, NO);
         contentLayer.timeOffset = 0;
+        contentLayer.speed = 1.0f;
+        contentLayer.beginTime = 0;
         
         UIColor *normalColor = [self textColorForState:(UIControlStateNormal)];
         if (normalColor == nil) {
@@ -168,8 +182,10 @@ static BOOL XZTextMenuItemViewNeedsUpdateAnimation(XZTextMenuItemView * _Nonnull
         
         contentLayer.backgroundColor = normalColor.CGColor;
         
+        NSMutableArray<CAAnimation *> *animations = nil;
         
-        [contentLayer removeAnimationForKey:XZTextMenuItemViewTextColorAnimationKey];
+        [contentLayer removeAnimationForKey:XZTextMenuItemViewAnimationKey];
+        
         if ((_transitionOptions & XZTextMenuItemViewTransitionOptionColor) == XZTextMenuItemViewTransitionOptionColor) {
             CABasicAnimation *backgroundcolorAnimation = [CABasicAnimation animationWithKeyPath:@"backgroundColor"];
             backgroundcolorAnimation.fromValue         = (__bridge id _Nullable)(normalColor.CGColor);
@@ -178,27 +194,42 @@ static BOOL XZTextMenuItemViewNeedsUpdateAnimation(XZTextMenuItemView * _Nonnull
             if (selectedColor == nil) {
                 selectedColor = [UIColor colorWithRed:0.8 green:0.2 blue:0.2 alpha:1.0];
             }
+            backgroundcolorAnimation.toValue = (__bridge id _Nullable)(selectedColor.CGColor);
             
-            backgroundcolorAnimation.toValue           = (__bridge id _Nullable)(selectedColor.CGColor);
-            backgroundcolorAnimation.duration          = 1.0;
-            backgroundcolorAnimation.autoreverses      = NO;
-            backgroundcolorAnimation.beginTime         = 0;
-            [contentLayer addAnimation:backgroundcolorAnimation forKey:XZTextMenuItemViewTextColorAnimationKey];
+            animations = [[NSMutableArray alloc] init];
+            [animations addObject:backgroundcolorAnimation];
         }
         
-        [contentLayer removeAnimationForKey:XZTextMenuItemViewTextScaleAnimationKey];
         if ((_transitionOptions & XZTextMenuItemViewTransitionOptionScale) == XZTextMenuItemViewTransitionOptionScale) {
             CABasicAnimation *transformAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
-            transformAnimation.fromValue    = [NSValue valueWithCATransform3D:CATransform3DMakeAffineTransform(CGAffineTransformIdentity)];
-            transformAnimation.toValue      = [NSValue valueWithCATransform3D:CATransform3DMakeAffineTransform(CGAffineTransformMakeScale(1.20, 1.20))];
-            transformAnimation.duration     = 1.0;
-            transformAnimation.autoreverses = NO;
-            transformAnimation.beginTime    = 0;
-            [contentLayer addAnimation:transformAnimation forKey:XZTextMenuItemViewTextScaleAnimationKey];
+            transformAnimation.fromValue = [NSValue valueWithCATransform3D:CATransform3DMakeAffineTransform(CGAffineTransformIdentity)];
+            transformAnimation.toValue = [NSValue valueWithCATransform3D:CATransform3DMakeAffineTransform(CGAffineTransformMakeScale(1.20, 1.20))];
+            
+            if (animations == nil) {
+                animations = [[NSMutableArray alloc] init];
+            }
+            [animations addObject:transformAnimation];
         }
         
-        contentLayer.timeOffset = _transition;
+        if (animations != nil) {
+            CAAnimationGroup *groupAnimation = [CAAnimationGroup animation];
+            groupAnimation.animations          = animations;
+            groupAnimation.duration            = 1.0;
+            groupAnimation.autoreverses        = NO;
+            groupAnimation.beginTime           = 0;
+            groupAnimation.timeOffset          = 0;
+            groupAnimation.removedOnCompletion = NO;
+            groupAnimation.fillMode            = kCAFillModeBoth;
+            groupAnimation.delegate            = self;
+            [contentLayer addAnimation:groupAnimation forKey:XZTextMenuItemViewAnimationKey];
+        }
+        
         [CATransaction setDisableActions:NO];
+        
+        // 如果 transiton
+        if (_transition != 0) {
+            contentLayer.speed = 100.0f;
+        }
     }
 }
 
