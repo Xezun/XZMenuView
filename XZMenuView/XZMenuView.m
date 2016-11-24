@@ -30,7 +30,9 @@ NSInteger const XZMenuViewNoSelection = -1;
 
 @end
 
+@interface _XZMenuViewLayout : UICollectionViewFlowLayout
 
+@end
 
 @interface XZMenuView () <UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout> {
     UICollectionView *_menuItemsView;
@@ -67,7 +69,7 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 - (void)XZ_viewDidInitialize {
     _selectedIndex = XZMenuViewNoSelection;
     
-    UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
+    _XZMenuViewLayout *flowLayout = [[_XZMenuViewLayout alloc] init];
     flowLayout.scrollDirection         = UICollectionViewScrollDirectionHorizontal;
     flowLayout.minimumLineSpacing      = 0;
     flowLayout.minimumInteritemSpacing = 0;
@@ -525,5 +527,9 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 - (void)displayLinkAction:(CADisplayLink *)diplayLink {
     _action(_target, _selector, self);
 }
+
+@end
+
+@implementation _XZMenuViewLayout
 
 @end
