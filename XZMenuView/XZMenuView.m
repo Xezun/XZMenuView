@@ -17,15 +17,26 @@ NSInteger const XZMenuViewNoSelection = -1;
 
 @end
 
-@interface XZMenuView () <UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout>
+@class CADisplayLink;
 
-@property (nonatomic, strong) UICollectionView *menuItemsView;
+@interface _XZMenuViewTransitionLink : NSObject
 
-@property (nonatomic, strong, readonly) CADisplayLink *transitionLink;
-@property (nonatomic, weak, readonly) UIView *transitionRelativeView;
-@property (nonatomic) CGRect transitionOriginalRect;
+@property (nonatomic, weak) UIView *view;
+@property (nonatomic) CGRect rect;
 
-@property (nonatomic) NSLocaleLanguageDirection languageDirection;
++ (instancetype)transitionLinkWithTarget:(id)target selector:(SEL)selector;
+@property (getter=isPaused, nonatomic) BOOL paused;
+@property (nonatomic) NSInteger preferredFramesPerSecond;
+
+@end
+
+
+
+@interface XZMenuView () <UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout> {
+    UICollectionView *_menuItemsView;
+}
+
+@property (nonatomic, strong, readonly) _XZMenuViewTransitionLink *transitionLink;
 
 @end
 
@@ -34,21 +45,63 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 @implementation XZMenuView
 
 - (void)dealloc {
-    [_transitionLink removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
-    [_transitionLink invalidate];
+    
 }
 
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self != nil) {
-        _selectedIndex = XZMenuViewNoSelection;
-        _scrollDirection = XZMenuViewScrollDirectionHorizontal;
-        [self menuItemsView];
-        
-        _languageDirection = [NSLocale characterDirectionForLanguage:[[NSLocale currentLocale] objectForKey:NSLocaleLanguageCode]];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(currentLocaleDidChangeNotification:) name:NSCurrentLocaleDidChangeNotification object:nil];
+        [self XZ_viewDidInitialize];
     }
     return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        [self XZ_viewDidInitialize];
+    }
+    return self;
+}
+
+- (void)XZ_viewDidInitialize {
+    _selectedIndex = XZMenuViewNoSelection;
+    
+    UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
+    flowLayout.scrollDirection         = UICollectionViewScrollDirectionHorizontal;
+    flowLayout.minimumLineSpacing      = 0;
+    flowLayout.minimumInteritemSpacing = 0;
+    flowLayout.sectionInset            = UIEdgeInsetsMake(0, 0, 0, 0);
+    flowLayout.itemSize                = CGSizeMake([self minimumItemWidth], CGRectGetHeight(self.bounds));
+    //flowLayout.estimatedItemSize       = CGSizeMake([self minimumItemWidth], CGRectGetHeight(self.bounds));
+    
+    _menuItemsView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:flowLayout];
+    _menuItemsView.backgroundColor = [UIColor clearColor];
+    
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < 100000
+    if ([_menuItemsView respondsToSelector:@selector(setPrefetchingEnabled:)]) {
+        [_menuItemsView setValue:@(NO) forKey:@"prefetchingEnabled"];
+    }
+#else
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_10_0
+    if ([_menuItemsView respondsToSelector:@selector(setPrefetchingEnabled:)]) {
+        _menuItemsView.prefetchingEnabled = NO;
+    }
+#else
+    _menuItemsView.prefetchingEnabled = NO;
+#endif /* __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_10_0 */
+#endif /* __IPHONE_10_0 */
+    _menuItemsView.allowsSelection                = YES;
+    _menuItemsView.allowsMultipleSelection        = NO;
+    _menuItemsView.clipsToBounds                  = YES;
+    _menuItemsView.showsHorizontalScrollIndicator = NO;
+    _menuItemsView.showsHorizontalScrollIndicator = NO;
+    _menuItemsView.alwaysBounceVertical           = NO;
+    _menuItemsView.alwaysBounceHorizontal         = YES;
+    [_menuItemsView registerClass:[_PDMenuViewItemCell class] forCellWithReuseIdentifier:XZMenuViewCellIdentifier];
+    [self addSubview:_menuItemsView];
+    _menuItemsView.delegate   = self;
+    _menuItemsView.dataSource = self;
 }
 
 - (void)layoutSubviews {
@@ -83,12 +136,12 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
     }
     
     CGRect centerFrame = CGRectMake(CGRectGetMaxX(leftFrame), 0, menuWidth - CGRectGetWidth(leftFrame) - CGRectGetWidth(rightFrame), menuHeight);
-    self.menuItemsView.frame = centerFrame;
+    _menuItemsView.frame = centerFrame;
     
     CGFloat minimumWidth = [self minimumItemWidth];
     CGFloat totalWith = menuWidth - CGRectGetWidth(leftFrame) - CGRectGetWidth(rightFrame);
     minimumWidth = (totalWith / floor(totalWith / minimumWidth));
-    [(UICollectionViewFlowLayout *)self.menuItemsView.collectionViewLayout setItemSize:CGSizeMake(minimumWidth, menuHeight)];
+    [(UICollectionViewFlowLayout *)_menuItemsView.collectionViewLayout setItemSize:CGSizeMake(minimumWidth, menuHeight)];
 }
 
 - (void)didMoveToWindow {
@@ -97,9 +150,9 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 
 #pragma mark - <UICollectionViewDataSource>
 
-- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
-    return 1;
-}
+//- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+//    return 1;
+//}
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     return [_dataSource numberOfItemsInMenuView:self];
@@ -123,7 +176,7 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     if (_selectedIndex != indexPath.item) {
-        [self PD_deselectItemAtIndex:_selectedIndex animated:YES];
+        [self XZ_deselectItemAtIndex:_selectedIndex animated:YES];
         
         _selectedIndex = indexPath.item;
         
@@ -140,7 +193,9 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewFlowLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
     if ([_delegate respondsToSelector:@selector(menuView:widthForItemAtIndex:)]) {
-        return CGSizeMake([_delegate menuView:self widthForItemAtIndex:indexPath.item], CGRectGetHeight(collectionView.bounds));
+        CGFloat width = [_delegate menuView:self widthForItemAtIndex:indexPath.item];
+        CGFloat height = CGRectGetHeight(self.bounds);
+        return CGSizeMake(width, height);
     }
     return collectionViewLayout.itemSize;
 }
@@ -151,32 +206,32 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
     if (_selectedIndex != selectedIndex) {
         if (selectedIndex < [_menuItemsView numberOfItemsInSection:0]) {
             if (_selectedIndex != XZMenuViewNoSelection) {
-                [self PD_deselectItemAtIndex:_selectedIndex animated:animated];
+                [self XZ_deselectItemAtIndex:_selectedIndex animated:animated];
             }
             _selectedIndex = selectedIndex;
-            [self PD_selectItemAtIndex:_selectedIndex animated:animated];
+            [self XZ_selectItemAtIndex:_selectedIndex animated:animated];
         } else {
-            [self PD_cleanSelection];
+            [self XZ_cleanSelection];
         }
     }
 }
 
 - (void)beginTransition:(UIView *)relativeView {
-    _transitionRelativeView = relativeView;
-    _transitionOriginalRect = [relativeView convertRect:relativeView.bounds toView:relativeView.window];
+    self.transitionLink.view = relativeView;
+    self.transitionLink.rect = [relativeView convertRect:relativeView.bounds toView:relativeView.window];
     self.transitionLink.paused = (relativeView == nil);
 }
 
 - (void)endTransition {
-    self.transitionLink.paused = YES;
-    _transitionRelativeView = nil;
+    _transitionLink.paused = YES;
+    _transitionLink.view = nil;
+    _transitionLink.rect = CGRectZero;
 }
 
 - (void)reloadData:(void (^)(BOOL))completion {
-    [self.menuItemsView performBatchUpdates:^{
-        [self.menuItemsView reloadSections:[NSIndexSet indexSetWithIndex:0]];
+    [_menuItemsView performBatchUpdates:^{
+        [_menuItemsView reloadSections:[NSIndexSet indexSetWithIndex:0]];
     } completion:^(BOOL finished) {
-        [self PD_cleanSelection];
         if (completion != nil) {
             completion(finished);
         }
@@ -184,144 +239,92 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 }
 
 - (void)insertItemAtIndex:(NSInteger)index {
-    [self.menuItemsView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:index inSection:0]]];
+    [_menuItemsView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:index inSection:0]]];
 }
 
 - (void)removeItemAtIndex:(NSInteger)index {
-    [self.menuItemsView deleteItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:index inSection:0]]];
+    [_menuItemsView deleteItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:index inSection:0]]];
 }
 
 - (UIView *)viewForItemAtIndex:(NSUInteger)index {
-    _PDMenuViewItemCell *cell = (_PDMenuViewItemCell *)[self.menuItemsView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:index inSection:0]];
+    _PDMenuViewItemCell *cell = (_PDMenuViewItemCell *)[_menuItemsView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:index inSection:0]];
     return [cell menuItemView];
 }
 
 #pragma mark - actions
 
-- (void)transitionLinkAction:(CADisplayLink *)displayLink {
-    CGRect transitionViewRect = [_transitionRelativeView convertRect:_transitionRelativeView.bounds toView:_transitionRelativeView.window];
+- (void)transitionLinkAction:(_XZMenuViewTransitionLink *)transitionLink {
+    CGRect transitionViewRect = [transitionLink.view convertRect:transitionLink.view.bounds toView:transitionLink.view.window];
     NSUInteger pendingIndex = XZMenuViewNoSelection;
     CGFloat transition = 0;
-    switch (_languageDirection) {
-        case NSLocaleLanguageDirectionLeftToRight: {
-            transition = (CGRectGetMinX(_transitionOriginalRect) - CGRectGetMinX(transitionViewRect)) / CGRectGetWidth(transitionViewRect);
-            if (transition > 0) {
-                pendingIndex = _selectedIndex + 1;
-            } else {
-                transition = -transition;
-                pendingIndex = _selectedIndex - 1;
-            }
+    switch ([UIApplication sharedApplication].userInterfaceLayoutDirection) {
+        case UIUserInterfaceLayoutDirectionLeftToRight: {
+            transition = (CGRectGetMinX(transitionLink.rect) - CGRectGetMinX(transitionViewRect)) / CGRectGetWidth(transitionViewRect);
+            
+            break;
+        }
+        case UIUserInterfaceLayoutDirectionRightToLeft: {
+            transition = (CGRectGetMinX(transitionViewRect) - CGRectGetMinX(transitionLink.rect)) / CGRectGetWidth(transitionViewRect);
             break;
         }
         default:
             break;
     }
     
+    if (transition > 0) {
+        pendingIndex = _selectedIndex + 1;
+    } else {
+        transition = -transition;
+        pendingIndex = _selectedIndex - 1;
+    }
+    
     if (_selectedIndex != XZMenuViewNoSelection) {
         NSIndexPath *selectedIndexPath = [NSIndexPath indexPathForItem:_selectedIndex inSection:0];
-        _PDMenuViewItemCell *selectedCell = (_PDMenuViewItemCell *)[self.menuItemsView cellForItemAtIndexPath:selectedIndexPath];
+        _PDMenuViewItemCell *selectedCell = (_PDMenuViewItemCell *)[_menuItemsView cellForItemAtIndexPath:selectedIndexPath];
         selectedCell.transition = MIN(1.0, MAX(0, 1.0 - transition));
-        //NSLog(@"🔴->⚪️：%ld, %@, %f", _selectedIndex, ((XZMenuItemView *)[selectedCell menuItemView]).title, 1.0 - transition);
+        NSLog(@"🔴->⚪️：%ld, %@, %f", _selectedIndex, ([selectedCell menuItemView]), 1.0 - transition);
     }
     
     if (pendingIndex < [_menuItemsView numberOfItemsInSection:0]) {
         NSIndexPath *pendingIndexPath = [NSIndexPath indexPathForItem:pendingIndex inSection:0];
-        _PDMenuViewItemCell *pendingCell = (_PDMenuViewItemCell *)[self.menuItemsView cellForItemAtIndexPath:pendingIndexPath];
+        _PDMenuViewItemCell *pendingCell = (_PDMenuViewItemCell *)[_menuItemsView cellForItemAtIndexPath:pendingIndexPath];
         pendingCell.transition = MIN(1.0, MAX(0, transition));
-        //NSLog(@"⚪️->🔴：%ld, %@, %f", pendingIndex, ((XZMenuItemView *)[pendingCell menuItemView]).title, transition);
+        NSLog(@"⚪️->🔴：%ld, %@, %f", pendingIndex, ([pendingCell menuItemView]), transition);
     }
-}
-
-- (void)currentLocaleDidChangeNotification:(NSNotification *)notification {
-    _languageDirection = [NSLocale characterDirectionForLanguage:[[NSLocale currentLocale] objectForKey:NSLocaleLanguageCode]];
 }
 
 #pragma mark - Private Methods
 
-- (void)PD_selectItemAtIndex:(NSInteger)index animated:(BOOL)animated {
+- (void)XZ_selectItemAtIndex:(NSInteger)index animated:(BOOL)animated {
     NSIndexPath *indexPath = [NSIndexPath indexPathForItem:index inSection:0];
-    [self PD_selectItemAtIndexPath:indexPath animated:animated];
+    [self XZ_selectItemAtIndexPath:indexPath animated:animated];
 }
 
-- (void)PD_selectItemAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated {
-    if (self.menuItemsView.visibleCells.count > 0) {
-        [self.menuItemsView selectItemAtIndexPath:indexPath animated:animated scrollPosition:(UICollectionViewScrollPositionCenteredHorizontally)];
-        _PDMenuViewItemCell *cell = (_PDMenuViewItemCell *)[self.menuItemsView cellForItemAtIndexPath:indexPath];
-        cell.transition = 1.0;
-    } else {
-        [self reloadData:^(BOOL finished) {
-            [self PD_selectItemAtIndexPath:indexPath animated:animated];
-        }];
-    }
+- (void)XZ_selectItemAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated {
+    [_menuItemsView selectItemAtIndexPath:indexPath animated:animated scrollPosition:(UICollectionViewScrollPositionCenteredHorizontally)];
+    _PDMenuViewItemCell *cell = (_PDMenuViewItemCell *)[_menuItemsView cellForItemAtIndexPath:indexPath];
+    cell.transition = 1.0;
 }
 
-- (void)PD_deselectItemAtIndex:(NSInteger)index animated:(BOOL)animated {
+- (void)XZ_deselectItemAtIndex:(NSInteger)index animated:(BOOL)animated {
     NSIndexPath *indexPath = [NSIndexPath indexPathForItem:index inSection:0];
-    [self PD_deselectItemAtIndexPath:indexPath animated:animated];
+    [self XZ_deselectItemAtIndexPath:indexPath animated:animated];
 }
 
-- (void)PD_deselectItemAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated {
-    [self.menuItemsView deselectItemAtIndexPath:indexPath animated:animated];
-    _PDMenuViewItemCell *cell = (_PDMenuViewItemCell *)[self.menuItemsView cellForItemAtIndexPath:indexPath];
+- (void)XZ_deselectItemAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated {
+    [_menuItemsView deselectItemAtIndexPath:indexPath animated:animated];
+    _PDMenuViewItemCell *cell = (_PDMenuViewItemCell *)[_menuItemsView cellForItemAtIndexPath:indexPath];
     cell.transition = 0;
 }
 
-- (void)PD_cleanSelection {
+- (void)XZ_cleanSelection {
     [[_menuItemsView indexPathsForSelectedItems] enumerateObjectsUsingBlock:^(NSIndexPath * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        [self PD_deselectItemAtIndexPath:obj animated:NO];
+        [self XZ_deselectItemAtIndexPath:obj animated:NO];
     }];
     _selectedIndex = XZMenuViewNoSelection;
 }
 
 #pragma mark - 属性
-
-- (UICollectionView *)menuItemsView {
-    if (_menuItemsView != nil) {
-        return _menuItemsView;
-    }
-    UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
-    flowLayout.scrollDirection         = UICollectionViewScrollDirectionHorizontal;
-    flowLayout.minimumLineSpacing      = 0;
-    flowLayout.minimumInteritemSpacing = 0;
-    flowLayout.itemSize = CGSizeMake([self minimumItemWidth], CGRectGetHeight(self.bounds));
-    _menuItemsView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:flowLayout];
-    _menuItemsView.backgroundColor = [UIColor clearColor];
-    
-#if __IPHONE_OS_VERSION_MAX_ALLOWED < 100000
-    if ([_menuItemsView respondsToSelector:@selector(setPrefetchingEnabled:)]) {
-        [_menuItemsView setValue:@(NO) forKey:@"prefetchingEnabled"];
-    }
-#else
-#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_10_0
-    if ([_menuItemsView respondsToSelector:@selector(setPrefetchingEnabled:)]) {
-        _menuItemsView.prefetchingEnabled = NO;
-    }
-#else
-    _menuItemsView.prefetchingEnabled = NO;
-#endif /* __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_10_0 */
-#endif /* __IPHONE_10_0 */
-    _menuItemsView.allowsSelection                = YES;
-    _menuItemsView.allowsMultipleSelection        = NO;
-    _menuItemsView.delegate                       = self;
-    _menuItemsView.dataSource                     = self;
-    _menuItemsView.clipsToBounds                  = YES;
-    _menuItemsView.showsHorizontalScrollIndicator = NO;
-    _menuItemsView.showsHorizontalScrollIndicator = NO;
-    _menuItemsView.alwaysBounceVertical           = NO;
-    _menuItemsView.alwaysBounceHorizontal         = YES;
-    [_menuItemsView registerClass:[_PDMenuViewItemCell class] forCellWithReuseIdentifier:XZMenuViewCellIdentifier];
-    [self addSubview:_menuItemsView];
-    [self setNeedsLayout];
-    return _menuItemsView;
-}
-
-- (void)setDataSource:(id<XZMenuViewDataSource>)dataSource {
-    if (_dataSource != dataSource) {
-        [self PD_cleanSelection]; // if dataSource changed clear the selection.
-        _dataSource = dataSource;
-        [self.menuItemsView reloadData];
-    }
-}
 
 - (void)setLeftView:(UIView *)leftView {
     if (_leftView != leftView) {
@@ -381,19 +384,22 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 
 @synthesize transitionLink = _transitionLink;
 
-- (CADisplayLink *)transitionLink {
+- (_XZMenuViewTransitionLink *)transitionLink {
     if (_transitionLink != nil) {
         return _transitionLink;
     }
-    _transitionLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(transitionLinkAction:)];
-    [_transitionLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
-    if ([UIDevice currentDevice].systemVersion.floatValue >= 10.0) {
-        _transitionLink.preferredFramesPerSecond = 30;
-    } else {
-        _transitionLink.frameInterval = 0.03;
-    }
+    _transitionLink = [_XZMenuViewTransitionLink transitionLinkWithTarget:self selector:@selector(transitionLinkAction:)];
+    _transitionLink.preferredFramesPerSecond = 30;
     _transitionLink.paused = YES;
     return _transitionLink;
+}
+
+- (void)setScrollDirection:(XZMenuViewScrollDirection)scrollDirection {
+    [(UICollectionViewFlowLayout *)_menuItemsView.collectionViewLayout setScrollDirection:(UICollectionViewScrollDirection)scrollDirection];
+}
+
+- (XZMenuViewScrollDirection)scrollDirection {
+    return (XZMenuViewScrollDirection)[(UICollectionViewFlowLayout *)_menuItemsView.collectionViewLayout scrollDirection];
 }
 
 @end
@@ -405,18 +411,6 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 @implementation _PDMenuViewItemCell
 
 @synthesize transition = _transition;
-
-- (instancetype)initWithFrame:(CGRect)frame {
-    self = [super initWithFrame:frame];
-    if (self) {
-        //self.contentView.backgroundColor = [UIColor redColor];
-    }
-    return self;
-}
-
-- (void)layoutSubviews {
-    [super layoutSubviews];
-}
 
 - (void)setMenuItemView:(UIView<XZMenuItemView> *)menuItemView {
     if (_menuItemView != menuItemView) {
@@ -461,3 +455,75 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 
 @end
 
+#import <objc/runtime.h>
+
+@implementation _XZMenuViewTransitionLink {
+    CADisplayLink *_displayLink;
+    id __weak _target;
+    SEL _selector;
+    void (*_action)(id, SEL, id);
+}
+
+- (void)dealloc {
+    [_displayLink removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+    [_displayLink invalidate];
+}
+
++ (instancetype)transitionLinkWithTarget:(id)target selector:(SEL)selector {
+    return [(_XZMenuViewTransitionLink *)[self alloc] initWithTarget:target selector:selector];
+}
+
+- (instancetype)initWithTarget:(id)target selector:(SEL)selector {
+    self = [super init];
+    if (self) {
+        _target = target;
+        _selector = selector;
+        IMP imp = class_getMethodImplementation(object_getClass(_target), _selector);
+        _action = (void *)imp;
+        _displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkAction:)];
+        [_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+    }
+    return self;
+}
+
+- (void)addToRunLoop:(NSRunLoop *)runloop forMode:(NSRunLoopMode)mode {
+    [_displayLink addToRunLoop:runloop forMode:mode];
+}
+
+- (void)removeFromRunLoop:(NSRunLoop *)runloop forMode:(NSRunLoopMode)mode {
+    [_displayLink removeFromRunLoop:runloop forMode:mode];
+}
+
+- (void)invalidate {
+    [_displayLink invalidate];
+}
+
+- (BOOL)isPaused {
+    return [_displayLink isPaused];
+}
+
+- (void)setPaused:(BOOL)paused {
+    [_displayLink setPaused:paused];
+}
+
+- (NSInteger)preferredFramesPerSecond {
+    if ([UIDevice currentDevice].systemVersion.floatValue >= 10.0) {
+        return [_displayLink preferredFramesPerSecond];
+    } else {
+        return 1.0 / [_displayLink frameInterval];
+    }
+}
+
+- (void)setPreferredFramesPerSecond:(NSInteger)preferredFramesPerSecond {
+    if ([UIDevice currentDevice].systemVersion.floatValue >= 10.0) {
+        [_displayLink setPreferredFramesPerSecond:preferredFramesPerSecond];
+    } else {
+        _displayLink.frameInterval = 1.0 / (CGFloat)preferredFramesPerSecond;
+    }
+}
+
+- (void)displayLinkAction:(CADisplayLink *)diplayLink {
+    _action(_target, _selector, self);
+}
+
+@end

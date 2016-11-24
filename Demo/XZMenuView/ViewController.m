@@ -14,11 +14,13 @@
 
 @interface ViewController () <UIPageViewControllerDelegate, UIPageViewControllerDataSource, XZMenuViewDelegate, XZMenuViewDataSource>
 
-@property (weak, nonatomic) IBOutlet XZMenuView *menuView;
+@property (weak, nonatomic) IBOutlet UIView *menuViewWrapper;
 @property (weak, nonatomic) UIPageViewController *pageViewController;
 @property (nonatomic, strong) NSMutableDictionary<NSNumber *, ContentViewController *> *viewControllers;
 
 @property (nonatomic, strong) NSArray<NSString *> *menuItems;
+
+@property (nonatomic, strong) XZMenuView *menuView;
 
 @end
 
@@ -27,12 +29,20 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.menuView.delegate = self;
-    self.menuView.dataSource = self;
+    
     
     self.menuItems = @[@"新闻联播", @"焦点访谈", @"了不起的挑战", @"客从何处来", @"中国味道", @"我爱妈妈", @"挑战不可能", @"出彩中国人", @"等着我", @"舞出我人生", @"吉尼斯中国之夜", @"今日说法", @"生活圈梦想星搭档", @"人口", @"人与自然", @"撒贝宁时间", @"喜乐街"];
-    [self.pageViewController setViewControllers:@[[self viewControllerAtPage:0]] direction:(UIPageViewControllerNavigationDirectionForward) animated:NO completion:nil];
-    [self.menuView setSelectedIndex:0];
+    self.menuView = [[XZMenuView alloc] initWithFrame:self.menuViewWrapper.frame];
+    self.menuView.delegate = self;
+    self.menuView.dataSource = self;
+    [self.view addSubview:self.menuView];
+    
+    UIPageViewControllerNavigationDirection d = UIPageViewControllerNavigationDirectionForward;
+    if ([UIApplication sharedApplication].userInterfaceLayoutDirection == UIUserInterfaceLayoutDirectionRightToLeft) {
+        d = UIPageViewControllerNavigationDirectionReverse;
+    }
+    [self.pageViewController setViewControllers:@[[self viewControllerAtPage:0]] direction:d animated:NO completion:nil];
+    [self.menuView setSelectedIndex:0 animated:NO];
 }
 
 
@@ -68,10 +78,11 @@
 #pragma mark - UIPageViewControllerDelegate
 
 - (void)pageViewController:(UIPageViewController *)pageViewController willTransitionToViewControllers:(NSArray<UIViewController *> *)pendingViewControllers {
-    
+    [self.menuView beginTransition:[self viewControllerAtPage:self.menuView.selectedIndex].view];
 }
 
 - (void)pageViewController:(UIPageViewController *)pageViewController didFinishAnimating:(BOOL)finished previousViewControllers:(NSArray<ContentViewController *> *)previousViewControllers transitionCompleted:(BOOL)completed {
+    [self.menuView endTransition];
     if (finished && completed) {
         NSInteger currentPage = [self pageOfViewController:pageViewController.viewControllers.lastObject];
         [self.menuView setSelectedIndex:currentPage animated:YES];
@@ -85,6 +96,7 @@
 }
 
 - (UIView<XZMenuItemView> *)menuView:(XZMenuView *)menuView viewForItemAtIndex:(NSInteger)index reusingView:(__kindof UIView<XZMenuItemView> *)reusingView {
+    NSLog(@"%ld", index);
     XZTextMenuItemView *menuItemView = (XZTextMenuItemView *)reusingView;
     if (menuItemView == nil) {
         menuItemView = [[XZTextMenuItemView alloc] initWithFrame:CGRectMake(0, 0, 50, 40) transitionOptions:XZTextMenuItemViewTransitionOptionScale | XZTextMenuItemViewTransitionOptionColor];
@@ -103,7 +115,11 @@
 - (void)menuView:(XZMenuView *)menuView didSelectItemAtIndex:(NSInteger)index {
     NSInteger oldIndex = [self pageOfViewController:self.pageViewController.viewControllers.firstObject];
     UIViewController *vc = [self viewControllerAtPage:index];
+    
     UIPageViewControllerNavigationDirection direction = (oldIndex < index ? UIPageViewControllerNavigationDirectionForward : UIPageViewControllerNavigationDirectionReverse);
+    if ([UIApplication sharedApplication].userInterfaceLayoutDirection == UIUserInterfaceLayoutDirectionRightToLeft) {
+        direction = (direction == UIPageViewControllerNavigationDirectionReverse ? UIPageViewControllerNavigationDirectionForward : UIPageViewControllerNavigationDirectionReverse);
+    }
     [self.pageViewController setViewControllers:@[vc] direction:(direction) animated:YES completion:NULL];
 }
 

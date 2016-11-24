@@ -78,7 +78,7 @@ static BOOL XZTextMenuItemViewNeedsUpdateAnimation(XZTextMenuItemView * _Nonnull
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    NSLog(@"<%p: %@>: %s", self, _textLabel.text, __func__);
+    //NSLog(@"<%p: %@>: %s", self, _textLabel.text, __func__);
     
     [CATransaction setDisableActions:YES];
     CALayer *contentLayer = XZTextMenuItemViewContentLayer(self, NO);
@@ -113,7 +113,7 @@ static BOOL XZTextMenuItemViewNeedsUpdateAnimation(XZTextMenuItemView * _Nonnull
         _transition = transition;
         CALayer *contentLayer = XZTextMenuItemViewContentLayer(self, NO);
         CAAnimation *animation = [contentLayer animationForKey:XZTextMenuItemViewAnimationKey];
-        NSLog(@"<%p: %@, contentLayer: {beiginTime=%f, timeOffset=%f}, animation: {beginTime=%f, timeOffset=%f}>", self, _textLabel.text, contentLayer.beginTime, contentLayer.timeOffset, animation.beginTime, animation.timeOffset);
+        //NSLog(@"<%p: %@, contentLayer: {beiginTime=%f, timeOffset=%f}, animation: {beginTime=%f, timeOffset=%f}>", self, _textLabel.text, contentLayer.beginTime, contentLayer.timeOffset, animation.beginTime, animation.timeOffset);
         contentLayer.timeOffset = animation.beginTime + transition;
     }
 }
@@ -140,14 +140,11 @@ static BOOL XZTextMenuItemViewNeedsUpdateAnimation(XZTextMenuItemView * _Nonnull
 #pragma mark - <CAAnimationDelegate>
 
 - (void)animationDidStart:(CAAnimation *)anim {
-    NSLog(@"%s: %@", __func__, [(CAAnimationGroup *)anim animations]);
-//    XZTextMenuItemViewContentLayer(self, NO).speed = 0;
-//    XZTextMenuItemViewContentLayer(self, NO).timeOffset = _transition;
-    //anim.timeOffset = _transition;
+    //NSLog(@"%s: %@", __func__, [(CAAnimationGroup *)anim animations]);
 }
 
 - (void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag {
-    NSLog(@"%s: %@ %@", __func__, [(CAAnimationGroup *)anim animations], (flag ? @"YES" : @"NO"));
+    //NSLog(@"%s: %@ %@", __func__, [(CAAnimationGroup *)anim animations], (flag ? @"YES" : @"NO"));
     CALayer *contentLayer = XZTextMenuItemViewContentLayer(self, NO);
     contentLayer.speed = 0;
     contentLayer.timeOffset = anim.beginTime + _transition;
@@ -168,11 +165,11 @@ static BOOL XZTextMenuItemViewNeedsUpdateAnimation(XZTextMenuItemView * _Nonnull
     if (XZTextMenuItemViewNeedsUpdateAnimation(self, NO)) {
         [CATransaction setDisableActions:YES];
         
-        NSLog(@"<%p: %@>: %s", self, _textLabel.text, __func__);
+        //NSLog(@"<%p: %@>: %s", self, _textLabel.text, __func__);
         
         CALayer *contentLayer = XZTextMenuItemViewContentLayer(self, NO);
         contentLayer.timeOffset = 0;
-        contentLayer.speed = 1.0f;
+        contentLayer.speed = 0;
         contentLayer.beginTime = 0;
         
         UIColor *normalColor = [self textColorForState:(UIControlStateNormal)];
@@ -203,7 +200,7 @@ static BOOL XZTextMenuItemViewNeedsUpdateAnimation(XZTextMenuItemView * _Nonnull
         if ((_transitionOptions & XZTextMenuItemViewTransitionOptionScale) == XZTextMenuItemViewTransitionOptionScale) {
             CABasicAnimation *transformAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
             transformAnimation.fromValue = [NSValue valueWithCATransform3D:CATransform3DMakeAffineTransform(CGAffineTransformIdentity)];
-            transformAnimation.toValue = [NSValue valueWithCATransform3D:CATransform3DMakeAffineTransform(CGAffineTransformMakeScale(1.20, 1.20))];
+            transformAnimation.toValue = [NSValue valueWithCATransform3D:CATransform3DMakeAffineTransform(CGAffineTransformMakeScale(1.10, 1.10))];
             
             if (animations == nil) {
                 animations = [[NSMutableArray alloc] init];
@@ -227,10 +224,14 @@ static BOOL XZTextMenuItemViewNeedsUpdateAnimation(XZTextMenuItemView * _Nonnull
         [CATransaction setDisableActions:NO];
         
         // 如果 transiton
-        if (_transition != 0) {
+        if (_transition > 0) {
             contentLayer.speed = 100.0f;
         }
     }
+}
+
+- (NSString *)description {
+    return [NSString stringWithFormat:@"<%p: %@, %f>", self, _textLabel.text, _transition];
 }
 
 @end

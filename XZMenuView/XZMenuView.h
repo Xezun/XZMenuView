@@ -12,7 +12,7 @@ UIKIT_EXTERN NSInteger const XZMenuViewNoSelection; // -1
 
 @protocol XZMenuViewDataSource, XZMenuViewDelegate, XZMenuItemView;
 
-@class UICollectionView, UICollectionViewFlowLayout;
+@class UICollectionView, UICollectionViewFlowLayout, UILabel;
 
 typedef NS_ENUM(NSInteger, XZMenuViewScrollDirection) {
     XZMenuViewScrollDirectionVertical = UICollectionViewScrollDirectionVertical,
@@ -25,6 +25,8 @@ typedef NS_ENUM(NSInteger, XZMenuViewScrollDirection) {
 @property (nonatomic, strong) __kindof UIView *rightView;
 
 @property (nonatomic) XZMenuViewScrollDirection scrollDirection;
+//@property (nonatomic) NSLocaleLanguageDirection languageDirection;
+//@property (nonatomic) BOOL adjustsLanguageDirectionAutomatically;
 @property (nonatomic) CGFloat minimumItemWidth; // default 49.0
 
 @property (nonatomic, weak) id<XZMenuViewDataSource> dataSource;
@@ -76,6 +78,14 @@ typedef NS_ENUM(NSInteger, XZMenuViewScrollDirection) {
 @protocol XZMenuViewDelegate <NSObject>
 
 - (void)menuView:(XZMenuView *)menuView didSelectItemAtIndex:(NSInteger)index;
+
+/**
+ <#Description#>
+
+ @param menuView <#menuView description#>
+ @param index <#index description#>
+ @return <#return value description#>
+ */
 - (CGFloat)menuView:(XZMenuView *)menuView widthForItemAtIndex:(NSInteger)index;
 
 @end
