@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		88355F521DE82B3600332A33 /* TestLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 88355F511DE82B3600332A33 /* TestLayout.m */; };
 		883F98951DE526E10028B43A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 883F98941DE526E10028B43A /* main.m */; };
 		883F98981DE526E10028B43A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 883F98971DE526E10028B43A /* AppDelegate.m */; };
 		883F989B1DE526E10028B43A /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 883F989A1DE526E10028B43A /* ViewController.m */; };
@@ -21,6 +22,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		88355F501DE82B3600332A33 /* TestLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestLayout.h; sourceTree = "<group>"; };
+		88355F511DE82B3600332A33 /* TestLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestLayout.m; sourceTree = "<group>"; };
 		883F98901DE526E10028B43A /* XZMenuView.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XZMenuView.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		883F98941DE526E10028B43A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		883F98961DE526E10028B43A /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -41,8 +44,6 @@
 		883F98CE1DE54B850028B43A /* TestViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestViewController.m; sourceTree = "<group>"; };
 		88B80E9E1DE6BB1D00F65950 /* ar */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = ar; path = ar.lproj/Main.storyboard; sourceTree = "<group>"; };
 		88B80E9F1DE6BB2D00F65950 /* ar */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = ar; path = ar.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		88B80EA01DE6DF7400F65950 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		88B80EA11DE6DF8400F65950 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,6 +87,8 @@
 				883F98CB1DE539DD0028B43A /* MenuItemView.m */,
 				883F98CD1DE54B850028B43A /* TestViewController.h */,
 				883F98CE1DE54B850028B43A /* TestViewController.m */,
+				88355F501DE82B3600332A33 /* TestLayout.h */,
+				88355F511DE82B3600332A33 /* TestLayout.m */,
 				883F989C1DE526E10028B43A /* Main.storyboard */,
 				883F989F1DE526E10028B43A /* Assets.xcassets */,
 				883F98A11DE526E10028B43A /* LaunchScreen.storyboard */,
@@ -186,6 +189,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				883F989B1DE526E10028B43A /* ViewController.m in Sources */,
+				88355F521DE82B3600332A33 /* TestLayout.m in Sources */,
 				883F98C61DE527970028B43A /* XZTextMenuItemView.m in Sources */,
 				883F98CC1DE539DD0028B43A /* MenuItemView.m in Sources */,
 				883F98C91DE534D90028B43A /* ContentViewController.m in Sources */,
@@ -203,7 +207,6 @@
 			isa = PBXVariantGroup;
 			children = (
 				88B80E9E1DE6BB1D00F65950 /* ar */,
-				88B80EA01DE6DF7400F65950 /* Base */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -212,7 +215,6 @@
 			isa = PBXVariantGroup;
 			children = (
 				88B80E9F1DE6BB2D00F65950 /* ar */,
-				88B80EA11DE6DF8400F65950 /* Base */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";

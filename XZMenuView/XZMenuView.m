@@ -30,7 +30,10 @@ NSInteger const XZMenuViewNoSelection = -1;
 
 @end
 
-@interface _XZMenuViewLayout : UICollectionViewFlowLayout
+@interface _XZMenuViewLayout : UICollectionViewLayout
+
+@property (nonatomic) CGSize itemSize;
+@property (nonatomic) UICollectionViewScrollDirection scrollDirection;
 
 @end
 
@@ -71,11 +74,7 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
     
     _XZMenuViewLayout *flowLayout = [[_XZMenuViewLayout alloc] init];
     flowLayout.scrollDirection         = UICollectionViewScrollDirectionHorizontal;
-    flowLayout.minimumLineSpacing      = 0;
-    flowLayout.minimumInteritemSpacing = 0;
-    flowLayout.sectionInset            = UIEdgeInsetsMake(0, 0, 0, 0);
     flowLayout.itemSize                = CGSizeMake([self minimumItemWidth], CGRectGetHeight(self.bounds));
-    //flowLayout.estimatedItemSize       = CGSizeMake([self minimumItemWidth], CGRectGetHeight(self.bounds));
     
     _menuItemsView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:flowLayout];
     _menuItemsView.backgroundColor = [UIColor clearColor];
@@ -531,5 +530,47 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 @end
 
 @implementation _XZMenuViewLayout
+
+//- (void)prepareLayout {
+//    [super prepareLayout];
+//    
+//}
+//
+//- (CGSize)collectionViewContentSize {
+//    return CGSizeZero;
+//}
+//
+//- (NSArray<UICollectionViewLayoutAttributes *> *)layoutAttributesForElementsInRect:(CGRect)rect {
+//    NSArray<UICollectionViewLayoutAttributes *> *layoutAttributes = [super layoutAttributesForElementsInRect:rect];
+//    UICollectionViewLayoutAttributes *headerA = [self layoutAttributesForSupplementaryViewOfKind:UICollectionElementKindSectionHeader atIndexPath:[NSIndexPath indexPathForItem:0 inSection:0]];
+//    UICollectionViewLayoutAttributes *footerA = [self layoutAttributesForSupplementaryViewOfKind:UICollectionElementKindSectionFooter atIndexPath:[NSIndexPath indexPathForItem:0 inSection:0]];
+//    
+//    for (UICollectionViewLayoutAttributes *attr in layoutAttributes) {
+//        
+//    }
+//    
+//    return layoutAttributes;
+//}
+//
+//- (nullable UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath {
+//    
+//}
+//
+//- (nullable UICollectionViewLayoutAttributes *)layoutAttributesForSupplementaryViewOfKind:(NSString *)elementKind atIndexPath:(NSIndexPath *)indexPath {
+//    UICollectionViewLayoutAttributes *attributes = [super layoutAttributesForSupplementaryViewOfKind:elementKind atIndexPath:indexPath];
+//    if ([elementKind isEqualToString:UICollectionElementKindSectionHeader]) {
+//        
+//    } else {
+//        
+//    }
+//}
+//
+//- (nullable UICollectionViewLayoutAttributes *)layoutAttributesForDecorationViewOfKind:(NSString*)elementKind atIndexPath:(NSIndexPath *)indexPath {
+//    
+//}
+
+//- (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds {
+//    
+//}
 
 @end
