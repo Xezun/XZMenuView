@@ -24,6 +24,10 @@
 /* Begin PBXFileReference section */
 		88355F501DE82B3600332A33 /* TestLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestLayout.h; sourceTree = "<group>"; };
 		88355F511DE82B3600332A33 /* TestLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestLayout.m; sourceTree = "<group>"; };
+		88359E151DEC0EDD00391DBC /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/Main.storyboard; sourceTree = "<group>"; };
+		88359E161DEC0EDD00391DBC /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		88359E171DEC0EEC00391DBC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		88359E181DEC0EF500391DBC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		883F98901DE526E10028B43A /* XZMenuView.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XZMenuView.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		883F98941DE526E10028B43A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		883F98961DE526E10028B43A /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -159,6 +163,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				Base,
+				en,
 			);
 			mainGroup = 883F98871DE526E10028B43A;
 			productRefGroup = 883F98911DE526E10028B43A /* Products */;
@@ -207,6 +212,8 @@
 			isa = PBXVariantGroup;
 			children = (
 				88B80E9E1DE6BB1D00F65950 /* ar */,
+				88359E151DEC0EDD00391DBC /* en */,
+				88359E171DEC0EEC00391DBC /* Base */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -215,6 +222,8 @@
 			isa = PBXVariantGroup;
 			children = (
 				88B80E9F1DE6BB2D00F65950 /* ar */,
+				88359E161DEC0EDD00391DBC /* en */,
+				88359E181DEC0EF500391DBC /* Base */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";

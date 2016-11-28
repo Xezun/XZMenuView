@@ -15,9 +15,11 @@ NSInteger const XZMenuViewNoSelection = -1;
 
 @property (nonatomic, strong) UIView<XZMenuItemView> *menuItemView;
 
+@property (nonatomic, weak) UIView *indicatorView;
+
 @end
 
-@class CADisplayLink;
+
 
 @interface _XZMenuViewTransitionLink : NSObject
 
@@ -25,20 +27,35 @@ NSInteger const XZMenuViewNoSelection = -1;
 @property (nonatomic) CGRect rect;
 
 + (instancetype)transitionLinkWithTarget:(id)target selector:(SEL)selector;
+
 @property (getter=isPaused, nonatomic) BOOL paused;
 @property (nonatomic) NSInteger preferredFramesPerSecond;
 
 @end
 
+
+
+@class UICollectionViewFlowLayout;
+
 @interface _XZMenuViewLayout : UICollectionViewLayout
 
-@property (nonatomic) CGSize itemSize;
-@property (nonatomic) UICollectionViewScrollDirection scrollDirection;
+
+@property (nonatomic) UIUserInterfaceLayoutDirection userInterfaceLayoutDirection;
 
 @end
 
-@interface XZMenuView () <UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout> {
+@protocol UICollectionViewDelegateXZMenuViewLayout <UICollectionViewDelegate>
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(_XZMenuViewLayout *)collectionViewLayout widthForItemAtIndex:(NSInteger)index;
+
+@end
+
+
+
+
+@interface XZMenuView () <UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateXZMenuViewLayout> {
     UICollectionView *_menuItemsView;
+    UIImageView *_indicatorImageView;
 }
 
 @property (nonatomic, strong, readonly) _XZMenuViewTransitionLink *transitionLink;
@@ -73,8 +90,6 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
     _selectedIndex = XZMenuViewNoSelection;
     
     _XZMenuViewLayout *flowLayout = [[_XZMenuViewLayout alloc] init];
-    flowLayout.scrollDirection         = UICollectionViewScrollDirectionHorizontal;
-    flowLayout.itemSize                = CGSizeMake([self minimumItemWidth], CGRectGetHeight(self.bounds));
     
     _menuItemsView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:flowLayout];
     _menuItemsView.backgroundColor = [UIColor clearColor];
@@ -96,7 +111,7 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
     _menuItemsView.allowsMultipleSelection        = NO;
     _menuItemsView.clipsToBounds                  = YES;
     _menuItemsView.showsHorizontalScrollIndicator = NO;
-    _menuItemsView.showsHorizontalScrollIndicator = NO;
+    _menuItemsView.showsVerticalScrollIndicator   = NO;
     _menuItemsView.alwaysBounceVertical           = NO;
     _menuItemsView.alwaysBounceHorizontal         = YES;
     [_menuItemsView registerClass:[_PDMenuViewItemCell class] forCellWithReuseIdentifier:XZMenuViewCellIdentifier];
@@ -107,6 +122,8 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 
 - (void)layoutSubviews {
     [super layoutSubviews];
+    
+    NSLog(@"%s", __func__);
     
     CGRect bounds = self.bounds, leftFrame = CGRectZero, rightFrame = CGRectZero;
     CGFloat menuHeight = CGRectGetHeight(bounds);
@@ -139,10 +156,47 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
     CGRect centerFrame = CGRectMake(CGRectGetMaxX(leftFrame), 0, menuWidth - CGRectGetWidth(leftFrame) - CGRectGetWidth(rightFrame), menuHeight);
     _menuItemsView.frame = centerFrame;
     
+    switch (_indicatorStyle) {
+        case XZMenuViewIndicatorStyleDefault: {
+            switch (_indicatorPosition) {
+                case XZMenuViewIndicatorPositionTop:                    
+                    if (_selectedIndex != XZMenuViewNoSelection) {
+                        NSIndexPath *indexPath = [NSIndexPath indexPathForItem:_selectedIndex inSection:0];
+                        UICollectionViewLayoutAttributes *attr = [_menuItemsView.collectionViewLayout layoutAttributesForItemAtIndexPath:indexPath];
+                        CGRect frame = attr.frame;
+                        frame.origin.y = 0;
+                        frame.size.height = 2.0;
+                        _indicatorImageView.frame = frame;
+                    }
+                    
+                    break;
+                case XZMenuViewIndicatorPositionBottom:
+                    if (_selectedIndex != XZMenuViewNoSelection) {
+                        NSIndexPath *indexPath = [NSIndexPath indexPathForItem:_selectedIndex inSection:0];
+                        UICollectionViewLayoutAttributes *attr = [_menuItemsView.collectionViewLayout layoutAttributesForItemAtIndexPath:indexPath];
+                        CGRect frame = attr.frame;
+                        frame.origin.y = CGRectGetMaxY(frame);
+                        frame.size.height = 2.0;
+                        _indicatorImageView.frame = frame;
+                    }
+                    break;
+            }
+            break;
+        }
+        case XZMenuViewIndicatorStyleNone:
+            _menuItemsView.contentInset = UIEdgeInsetsZero;
+            break;
+    }
+    
+    
+    
     CGFloat minimumWidth = [self minimumItemWidth];
     CGFloat totalWith = menuWidth - CGRectGetWidth(leftFrame) - CGRectGetWidth(rightFrame);
     minimumWidth = (totalWith / floor(totalWith / minimumWidth));
-    [(UICollectionViewFlowLayout *)_menuItemsView.collectionViewLayout setItemSize:CGSizeMake(minimumWidth, menuHeight)];
+    _minimumItemWidth = minimumWidth;
+    //[(UICollectionViewFlowLayout *)_menuItemsView.collectionViewLayout setItemSize:CGSizeMake(minimumWidth, menuHeight)];
+    
+    
 }
 
 - (void)didMoveToWindow {
@@ -151,9 +205,9 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 
 #pragma mark - <UICollectionViewDataSource>
 
-//- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
-//    return 1;
-//}
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+    return 1;
+}
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     return [_dataSource numberOfItemsInMenuView:self];
@@ -184,6 +238,11 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
         _PDMenuViewItemCell *cell = (_PDMenuViewItemCell *)[collectionView cellForItemAtIndexPath:indexPath];
         cell.transition = 1.0;
         
+        CGRect frame = _indicatorImageView.frame;
+        frame.origin.x = CGRectGetMinX(cell.frame);
+        frame.size.width = CGRectGetWidth(cell.frame);
+        _indicatorImageView.frame = frame;
+        
         if ([_delegate respondsToSelector:@selector(menuView:didSelectItemAtIndex:)]) {
             [_delegate menuView:self didSelectItemAtIndex:_selectedIndex];
         }
@@ -192,13 +251,11 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 
 #pragma mark - <UICollectionViewDelegateFlowLayout>
 
-- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewFlowLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(_XZMenuViewLayout *)collectionViewLayout widthForItemAtIndex:(NSInteger)index {
     if ([_delegate respondsToSelector:@selector(menuView:widthForItemAtIndex:)]) {
-        CGFloat width = [_delegate menuView:self widthForItemAtIndex:indexPath.item];
-        CGFloat height = CGRectGetHeight(self.bounds);
-        return CGSizeMake(width, height);
+        return [_delegate menuView:self widthForItemAtIndex:index];
     }
-    return collectionViewLayout.itemSize;
+    return [self minimumItemWidth];
 }
 
 #pragma mark - Public Methods
@@ -279,10 +336,13 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
         pendingIndex = _selectedIndex - 1;
     }
     
+    CGRect rect1, rect2, rect = _indicatorImageView.frame;
+    
     if (_selectedIndex != XZMenuViewNoSelection) {
         NSIndexPath *selectedIndexPath = [NSIndexPath indexPathForItem:_selectedIndex inSection:0];
         _PDMenuViewItemCell *selectedCell = (_PDMenuViewItemCell *)[_menuItemsView cellForItemAtIndexPath:selectedIndexPath];
         selectedCell.transition = MIN(1.0, MAX(0, 1.0 - transition));
+        rect1 = selectedCell.frame;
         NSLog(@"🔴->⚪️：%ld, %@, %f", _selectedIndex, ([selectedCell menuItemView]), 1.0 - transition);
     }
     
@@ -290,8 +350,14 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
         NSIndexPath *pendingIndexPath = [NSIndexPath indexPathForItem:pendingIndex inSection:0];
         _PDMenuViewItemCell *pendingCell = (_PDMenuViewItemCell *)[_menuItemsView cellForItemAtIndexPath:pendingIndexPath];
         pendingCell.transition = MIN(1.0, MAX(0, transition));
+        rect2 = pendingCell.frame;
         NSLog(@"⚪️->🔴：%ld, %@, %f", pendingIndex, ([pendingCell menuItemView]), transition);
     }
+    
+    rect.origin.x = CGRectGetMinX(rect1) + (CGRectGetMinX(rect2) - CGRectGetMinX(rect1)) * transition;
+    rect.size.width = CGRectGetWidth(rect1) + (CGRectGetWidth(rect2) - CGRectGetWidth(rect1)) * transition;
+    rect.size.height = 2.0;
+    _indicatorImageView.frame = rect;
 }
 
 #pragma mark - Private Methods
@@ -304,7 +370,13 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 - (void)XZ_selectItemAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated {
     [_menuItemsView selectItemAtIndexPath:indexPath animated:animated scrollPosition:(UICollectionViewScrollPositionCenteredHorizontally)];
     _PDMenuViewItemCell *cell = (_PDMenuViewItemCell *)[_menuItemsView cellForItemAtIndexPath:indexPath];
+    
+    CGRect cellFrame = [_menuItemsView.collectionViewLayout layoutAttributesForItemAtIndexPath:indexPath].frame;
     cell.transition = 1.0;
+    CGRect frame = _indicatorImageView.frame;
+    frame.origin.x = CGRectGetMinX(cellFrame);
+    frame.size.width = CGRectGetWidth(cellFrame);
+    _indicatorImageView.frame = frame;
 }
 
 - (void)XZ_deselectItemAtIndex:(NSInteger)index animated:(BOOL)animated {
@@ -315,6 +387,7 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 - (void)XZ_deselectItemAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated {
     [_menuItemsView deselectItemAtIndexPath:indexPath animated:animated];
     _PDMenuViewItemCell *cell = (_PDMenuViewItemCell *)[_menuItemsView cellForItemAtIndexPath:indexPath];
+    
     cell.transition = 0;
 }
 
@@ -395,15 +468,72 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
     return _transitionLink;
 }
 
-- (void)setScrollDirection:(XZMenuViewScrollDirection)scrollDirection {
-    [(UICollectionViewFlowLayout *)_menuItemsView.collectionViewLayout setScrollDirection:(UICollectionViewScrollDirection)scrollDirection];
+- (void)setUserInterfaceLayoutDirection:(UIUserInterfaceLayoutDirection)userInterfaceLayoutDirection {
+    [(_XZMenuViewLayout *)_menuItemsView.collectionViewLayout setUserInterfaceLayoutDirection:userInterfaceLayoutDirection];
 }
 
-- (XZMenuViewScrollDirection)scrollDirection {
-    return (XZMenuViewScrollDirection)[(UICollectionViewFlowLayout *)_menuItemsView.collectionViewLayout scrollDirection];
+- (UIUserInterfaceLayoutDirection)userInterfaceLayoutDirection {
+    return [(_XZMenuViewLayout *)_menuItemsView.collectionViewLayout userInterfaceLayoutDirection];
+}
+
+- (void)setIndicatorStyle:(XZMenuViewIndicatorStyle)indicatorStyle {
+    if (_indicatorStyle != indicatorStyle) {
+        _indicatorStyle = indicatorStyle;
+        switch (_indicatorStyle) {
+            case XZMenuViewIndicatorStyleDefault: {
+                if (_indicatorImageView == nil) {
+                    _indicatorImageView = [[UIImageView alloc] init];
+                }
+                _indicatorImageView.image = _indicatorImage;
+                _indicatorImageView.backgroundColor = _indicatorColor;
+                [_menuItemsView addSubview:_indicatorImageView];
+                break;
+            }
+            case XZMenuViewIndicatorStyleNone:
+                [_indicatorImageView removeFromSuperview];
+                break;
+        }
+    }
+}
+
+- (void)setIndicatorPosition:(XZMenuViewIndicatorPosition)indicatorPosition {
+    if (_indicatorPosition != indicatorPosition) {
+        _indicatorPosition = indicatorPosition;
+        switch (_indicatorPosition) {
+            case XZMenuViewIndicatorPositionBottom:
+                _menuItemsView.contentInset = UIEdgeInsetsMake(0, 0, 2.0, 0);
+                break;
+            case XZMenuViewIndicatorPositionTop:
+                _menuItemsView.contentInset = UIEdgeInsetsMake(2.0, 0, 0, 0);
+                break;
+        }
+        [_menuItemsView invalidateIntrinsicContentSize];
+    }
+}
+
+- (void)setIndicatorImage:(UIImage *)indicatorImage {
+    if (_indicatorImage != indicatorImage) {
+        _indicatorImage = indicatorImage;
+        _indicatorImageView.image = _indicatorImage;
+    }
+}
+
+- (void)setIndicatorColor:(UIColor *)indicatorColor {
+    if (_indicatorColor != indicatorColor) {
+        _indicatorColor = indicatorColor;
+        _indicatorImageView.backgroundColor = _indicatorColor;
+    }
 }
 
 @end
+
+
+
+
+
+
+
+#pragma mark - ==================
 
 @interface _PDMenuViewItemCell ()
 
@@ -454,7 +584,22 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
     }
 }
 
+- (void)setIndicatorView:(UIView *)indicatorView {
+    if (_indicatorView != indicatorView) {
+        _indicatorView = indicatorView;
+        CGRect bounds = self.bounds;
+        bounds.origin.y += 2.0;
+        bounds.size.height = 2.0;
+        _indicatorView.frame = bounds;
+        [self.contentView addSubview:_indicatorView];
+        _indicatorView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    }
+}
+
 @end
+
+
+#pragma mark - ==================
 
 #import <objc/runtime.h>
 
@@ -529,48 +674,132 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 
 @end
 
+
+#pragma mark - ==================
+
+@interface _XZMenuViewLayout () {
+    CGFloat _totalWidth;
+    CGFloat _totalHeight;
+    
+    CGFloat _itemCount;
+    
+    NSMutableArray<UICollectionViewLayoutAttributes *> *_allLayoutAttributes;
+}
+
+@end
+
 @implementation _XZMenuViewLayout
 
-//- (void)prepareLayout {
-//    [super prepareLayout];
-//    
-//}
-//
-//- (CGSize)collectionViewContentSize {
-//    return CGSizeZero;
-//}
-//
-//- (NSArray<UICollectionViewLayoutAttributes *> *)layoutAttributesForElementsInRect:(CGRect)rect {
-//    NSArray<UICollectionViewLayoutAttributes *> *layoutAttributes = [super layoutAttributesForElementsInRect:rect];
-//    UICollectionViewLayoutAttributes *headerA = [self layoutAttributesForSupplementaryViewOfKind:UICollectionElementKindSectionHeader atIndexPath:[NSIndexPath indexPathForItem:0 inSection:0]];
-//    UICollectionViewLayoutAttributes *footerA = [self layoutAttributesForSupplementaryViewOfKind:UICollectionElementKindSectionFooter atIndexPath:[NSIndexPath indexPathForItem:0 inSection:0]];
-//    
-//    for (UICollectionViewLayoutAttributes *attr in layoutAttributes) {
-//        
-//    }
-//    
-//    return layoutAttributes;
-//}
-//
-//- (nullable UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath {
-//    
-//}
-//
-//- (nullable UICollectionViewLayoutAttributes *)layoutAttributesForSupplementaryViewOfKind:(NSString *)elementKind atIndexPath:(NSIndexPath *)indexPath {
-//    UICollectionViewLayoutAttributes *attributes = [super layoutAttributesForSupplementaryViewOfKind:elementKind atIndexPath:indexPath];
-//    if ([elementKind isEqualToString:UICollectionElementKindSectionHeader]) {
-//        
-//    } else {
-//        
-//    }
-//}
-//
-//- (nullable UICollectionViewLayoutAttributes *)layoutAttributesForDecorationViewOfKind:(NSString*)elementKind atIndexPath:(NSIndexPath *)indexPath {
-//    
-//}
+- (instancetype)init {
+    self = [super init];
+    if (self != nil) {
+        [self XZ_layoutDidInitialize];
+    }
+    return self;
+}
 
-//- (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds {
-//    
-//}
+- (instancetype)initWithCoder:(NSCoder *)coder {
+    self = [super initWithCoder:coder];
+    if (self) {
+        [self XZ_layoutDidInitialize];
+    }
+    return self;
+}
+
+- (void)XZ_layoutDidInitialize {
+    _userInterfaceLayoutDirection = [UIApplication sharedApplication].userInterfaceLayoutDirection;
+}
+
+- (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds {
+    return YES;
+}
+
+- (void)prepareLayout {
+    [super prepareLayout];
+    
+    NSLog(@"%s", __func__);
+    
+    _itemCount = [self.collectionView.dataSource collectionView:self.collectionView numberOfItemsInSection:0];
+    
+    CGRect bounds = self.collectionView.bounds;
+    UIEdgeInsets contentInset = self.collectionView.contentInset;
+    _totalHeight = CGRectGetHeight(bounds) - contentInset.bottom - contentInset.top;
+    
+    _totalWidth = 0;
+    id<UICollectionViewDelegateXZMenuViewLayout> delegate = (id<UICollectionViewDelegateXZMenuViewLayout>)self.collectionView.delegate;
+    
+    if (_allLayoutAttributes != nil) {
+        [_allLayoutAttributes removeAllObjects];
+    } else {
+        _allLayoutAttributes = [NSMutableArray arrayWithCapacity:_itemCount];
+    }
+    
+    switch (_userInterfaceLayoutDirection) {
+        case UIUserInterfaceLayoutDirectionRightToLeft: {
+            CGFloat *widths = calloc(_itemCount, sizeof(CGFloat));
+            for (NSInteger i = 0; i < _itemCount; i++) {
+                CGFloat const width = [delegate collectionView:self.collectionView layout:self widthForItemAtIndex:i];
+                widths[i] = width;
+                
+                NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
+                UICollectionViewLayoutAttributes *attr = [UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
+                [_allLayoutAttributes addObject:attr];
+                
+                _totalWidth += width;
+            }
+            
+            CGFloat tmpWidth = _totalWidth;
+            for (NSInteger i = 0; i < _itemCount; i++) {
+                UICollectionViewLayoutAttributes *attr = _allLayoutAttributes[i];
+                tmpWidth -= widths[i];
+                attr.frame = CGRectMake(tmpWidth, 0, widths[i], _totalHeight);
+            }
+            free(widths);
+            break;
+        }
+        case UIUserInterfaceLayoutDirectionLeftToRight: {
+            for (NSInteger i = 0; i < _itemCount; i++) {
+                CGFloat const width = [delegate collectionView:self.collectionView layout:self widthForItemAtIndex:i];
+                
+                NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
+                UICollectionViewLayoutAttributes *attr = [UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
+                attr.frame = CGRectMake(_totalWidth, 0, width, _totalHeight);
+                [_allLayoutAttributes addObject:attr];
+                
+                _totalWidth += width;
+            }
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+- (CGSize)collectionViewContentSize {
+    return CGSizeMake(_totalWidth, _totalHeight);
+}
+
+- (NSArray<UICollectionViewLayoutAttributes *> *)layoutAttributesForElementsInRect:(CGRect)rect {
+    NSMutableArray *arrayM = [NSMutableArray array];
+    for (UICollectionViewLayoutAttributes *attr in _allLayoutAttributes) {
+        if (CGRectIntersectsRect(rect, attr.frame)) {
+            [arrayM addObject:attr];
+        }
+    }
+    return arrayM;
+}
+
+- (nullable UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath {
+    return [_allLayoutAttributes objectAtIndex:indexPath.item];
+}
+
+#pragma mark - setter & getter
+
+- (void)setUserInterfaceLayoutDirection:(UIUserInterfaceLayoutDirection)userInterfaceLayoutDirection {
+    if (_userInterfaceLayoutDirection != userInterfaceLayoutDirection) {
+        _userInterfaceLayoutDirection = userInterfaceLayoutDirection;
+        [self invalidateLayout];
+    }
+}
 
 @end

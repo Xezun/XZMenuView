@@ -14,9 +14,16 @@ UIKIT_EXTERN NSInteger const XZMenuViewNoSelection; // -1
 
 @class UICollectionView, UICollectionViewFlowLayout, UILabel;
 
-typedef NS_ENUM(NSInteger, XZMenuViewScrollDirection) {
-    XZMenuViewScrollDirectionVertical = UICollectionViewScrollDirectionVertical,
-    XZMenuViewScrollDirectionHorizontal = UICollectionViewScrollDirectionHorizontal
+// Indicator Style
+typedef NS_ENUM(NSInteger, XZMenuViewIndicatorStyle) {
+    XZMenuViewIndicatorStyleNone,
+    XZMenuViewIndicatorStyleDefault
+};
+
+// Indicator Position
+typedef NS_ENUM(NSInteger, XZMenuViewIndicatorPosition) {
+    XZMenuViewIndicatorPositionBottom = 1,
+    XZMenuViewIndicatorPositionTop
 };
 
 @interface XZMenuView : UIView
@@ -24,9 +31,13 @@ typedef NS_ENUM(NSInteger, XZMenuViewScrollDirection) {
 @property (nonatomic, strong) __kindof UIView *leftView;
 @property (nonatomic, strong) __kindof UIView *rightView;
 
-@property (nonatomic) XZMenuViewScrollDirection scrollDirection;
-//@property (nonatomic) NSLocaleLanguageDirection languageDirection;
-//@property (nonatomic) BOOL adjustsLanguageDirectionAutomatically;
+@property (nonatomic) UIUserInterfaceLayoutDirection userInterfaceLayoutDirection; // -[UIApplication userInterfaceLayoutDirection] default.
+
+@property (nonatomic) XZMenuViewIndicatorStyle indicatorStyle;
+@property (nonatomic) XZMenuViewIndicatorPosition indicatorPosition;
+@property (nonatomic, strong) UIImage *indicatorImage;
+@property (nonatomic, strong) UIColor *indicatorColor;
+
 @property (nonatomic) CGFloat minimumItemWidth; // default 49.0
 
 @property (nonatomic, weak) id<XZMenuViewDataSource> dataSource;
@@ -45,8 +56,7 @@ typedef NS_ENUM(NSInteger, XZMenuViewScrollDirection) {
 - (void)beginTransition:(UIView *)relativeView;
 - (void)endTransition;
 
-- (void)reloadData:(void (^)(BOOL finished))completion;; // will clean the selection
-//- (void)performBatchUpdates:(void (^)(void))updates completion:(void (^)(BOOL finished))completion;
+- (void)reloadData:(void (^)(BOOL finished))completion;;
 
 - (void)insertItemAtIndex:(NSInteger)index;
 - (void)removeItemAtIndex:(NSInteger)index;
@@ -78,14 +88,6 @@ typedef NS_ENUM(NSInteger, XZMenuViewScrollDirection) {
 @protocol XZMenuViewDelegate <NSObject>
 
 - (void)menuView:(XZMenuView *)menuView didSelectItemAtIndex:(NSInteger)index;
-
-/**
- <#Description#>
-
- @param menuView <#menuView description#>
- @param index <#index description#>
- @return <#return value description#>
- */
 - (CGFloat)menuView:(XZMenuView *)menuView widthForItemAtIndex:(NSInteger)index;
 
 @end

@@ -35,6 +35,9 @@
     self.menuView = [[XZMenuView alloc] initWithFrame:self.menuViewWrapper.frame];
     self.menuView.delegate = self;
     self.menuView.dataSource = self;
+    self.menuView.indicatorStyle = XZMenuViewIndicatorStyleDefault;
+    self.menuView.indicatorPosition = XZMenuViewIndicatorPositionBottom;
+    self.menuView.indicatorColor = [UIColor orangeColor];
     [self.view addSubview:self.menuView];
     
     UIPageViewControllerNavigationDirection d = UIPageViewControllerNavigationDirectionForward;
