@@ -6,9 +6,9 @@
 //  Copyright © 2016年 mlibai. All rights reserved.
 //
 
-#import "XZTextMenuItemView.h"
+#import "XZPlainMenuItemView.h"
 
-@interface MenuItemView : XZTextMenuItemView
+@interface MenuItemView : XZPlainMenuItemView
 
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, copy) NSString *subtitle;

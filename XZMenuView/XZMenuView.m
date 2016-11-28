@@ -25,6 +25,7 @@ NSInteger const XZMenuViewNoSelection = -1;
 
 @property (nonatomic, weak) UIView *view;
 @property (nonatomic) CGRect rect;
+@property (nonatomic) CGRect transitingRect;
 
 + (instancetype)transitionLinkWithTarget:(id)target selector:(SEL)selector;
 
@@ -213,8 +214,6 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
     
     cell.menuItemView = [_dataSource menuView:self viewForItemAtIndex:indexPath.item reusingView:cell.menuItemView];
     
-    cell.transition = (_selectedIndex == indexPath.item ? 1.0 : 0);
-    
     return cell;
 }
 
@@ -226,19 +225,19 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     if (_selectedIndex != indexPath.item) {
-        [self XZ_deselectItemAtIndex:_selectedIndex animated:YES];
+        //[self XZ_deselectItemAtIndex:_selectedIndex animated:YES];
         
         _selectedIndex = indexPath.item;
         
-        _PDMenuViewItemCell *cell = (_PDMenuViewItemCell *)[collectionView cellForItemAtIndexPath:indexPath];
-        cell.transition = 1.0;
-        
-        CGRect frame = _indicatorImageView.frame;
-        frame.origin.x = CGRectGetMinX(cell.frame);
-        frame.size.width = CGRectGetWidth(cell.frame);
-        [UIView animateWithDuration:0.25 animations:^{
-            _indicatorImageView.frame = frame;
-        }];
+        if (_indicatorImageView) {
+            CGRect cellFrame = ([_menuItemsView.collectionViewLayout layoutAttributesForItemAtIndexPath:indexPath]).frame;
+            CGRect frame = _indicatorImageView.frame;
+            frame.origin.x = CGRectGetMinX(cellFrame);
+            frame.size.width = CGRectGetWidth(cellFrame);
+            [UIView animateWithDuration:0.25 animations:^{
+                _indicatorImageView.frame = frame;
+            }];
+        }
         
         if ([_delegate respondsToSelector:@selector(menuView:didSelectItemAtIndex:)]) {
             [_delegate menuView:self didSelectItemAtIndex:_selectedIndex];
@@ -310,19 +309,20 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 
 - (void)transitionLinkAction:(_XZMenuViewTransitionLink *)transitionLink {
     CGRect transitionViewRect = [transitionLink.view convertRect:transitionLink.view.bounds toView:transitionLink.view.window];
+    if (CGRectEqualToRect(transitionLink.transitingRect, transitionViewRect)) {
+        return;
+    }
+    transitionLink.transitingRect = transitionViewRect;
+    
     NSUInteger pendingIndex = XZMenuViewNoSelection;
     CGFloat transition = 0;
     switch ([UIApplication sharedApplication].userInterfaceLayoutDirection) {
-        case UIUserInterfaceLayoutDirectionLeftToRight: {
+        case UIUserInterfaceLayoutDirectionLeftToRight:
             transition = (CGRectGetMinX(transitionLink.rect) - CGRectGetMinX(transitionViewRect)) / CGRectGetWidth(transitionViewRect);
-            
             break;
-        }
-        case UIUserInterfaceLayoutDirectionRightToLeft: {
+        
+        case UIUserInterfaceLayoutDirectionRightToLeft:
             transition = (CGRectGetMinX(transitionViewRect) - CGRectGetMinX(transitionLink.rect)) / CGRectGetWidth(transitionViewRect);
-            break;
-        }
-        default:
             break;
     }
     
@@ -353,7 +353,6 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
     
     rect.origin.x = CGRectGetMinX(rect1) + (CGRectGetMinX(rect2) - CGRectGetMinX(rect1)) * transition;
     rect.size.width = CGRectGetWidth(rect1) + (CGRectGetWidth(rect2) - CGRectGetWidth(rect1)) * transition;
-    rect.size.height = 2.0;
     _indicatorImageView.frame = rect;
 }
 
@@ -366,17 +365,15 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 
 - (void)XZ_selectItemAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated {
     [_menuItemsView selectItemAtIndexPath:indexPath animated:animated scrollPosition:(UICollectionViewScrollPositionCenteredHorizontally)];
-    _PDMenuViewItemCell *cell = (_PDMenuViewItemCell *)[_menuItemsView cellForItemAtIndexPath:indexPath];
-    
-    CGRect cellFrame = [_menuItemsView.collectionViewLayout layoutAttributesForItemAtIndexPath:indexPath].frame;
-    cell.transition = 1.0;
-    CGRect frame = _indicatorImageView.frame;
-    frame.origin.x = CGRectGetMinX(cellFrame);
-    frame.size.width = CGRectGetWidth(cellFrame);
-    
-    [UIView animateWithDuration:(animated ? 0.25 : 0) animations:^{
-        _indicatorImageView.frame = frame;
-    }];
+    if (_indicatorImageView) {
+        CGRect cellFrame = ([_menuItemsView.collectionViewLayout layoutAttributesForItemAtIndexPath:indexPath]).frame;
+        CGRect frame = _indicatorImageView.frame;
+        frame.origin.x = CGRectGetMinX(cellFrame);
+        frame.size.width = CGRectGetWidth(cellFrame);
+        [UIView animateWithDuration:0.25 animations:^{
+            _indicatorImageView.frame = frame;
+        }];
+    }
 }
 
 - (void)XZ_deselectItemAtIndex:(NSInteger)index animated:(BOOL)animated {
@@ -386,9 +383,6 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 
 - (void)XZ_deselectItemAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated {
     [_menuItemsView deselectItemAtIndexPath:indexPath animated:animated];
-    _PDMenuViewItemCell *cell = (_PDMenuViewItemCell *)[_menuItemsView cellForItemAtIndexPath:indexPath];
-    
-    cell.transition = 0;
 }
 
 - (void)XZ_cleanSelection {
@@ -554,6 +548,12 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
             _menuItemView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
             if ([_menuItemView respondsToSelector:@selector(setTransition:)]) {
                 _menuItemView.transition = _transition;
+            }
+            if ([_menuItemView respondsToSelector:@selector(setSelected:)]) {
+                _menuItemView.selected = [self isSelected];
+            }
+            if ([_menuItemView respondsToSelector:@selector(setHighlighted:)]) {
+                _menuItemView.highlighted = [self isHighlighted];
             }
         }
     }

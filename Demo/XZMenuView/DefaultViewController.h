@@ -1,5 +1,5 @@
 //
-//  TestViewController.h
+//  ViewController.h
 //  XZMenuView
 //
 //  Created by mlibai on 2016/11/23.
@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
-@interface TestViewController : UIViewController
+@interface DefaultViewController : UIViewController
+
 
 @end
+

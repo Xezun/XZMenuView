@@ -1,5 +1,5 @@
 //
-//  ViewController.h
+//  CustomViewController.h
 //  XZMenuView
 //
 //  Created by mlibai on 2016/11/29.
@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UITableViewController
+@interface CustomViewController : UIViewController
 
 @end

@@ -18,19 +18,19 @@
 
 @implementation MenuItemView
 
-- (instancetype)initWithFrame:(CGRect)frame {
-    self = [super initWithFrame:frame];
+- (instancetype)initWithFrame:(CGRect)frame transitionOptions:(XZPlainMenuItemViewTransitionOptions)transitionOptions {
+    self = [super initWithFrame:frame transitionOptions:transitionOptions];
     if (self) {
-        UIView *containerView = [[UIView alloc] initWithFrame:self.bounds];
+        UIView *containerView = [[UIView alloc] initWithFrame:self.contentView.bounds];
         containerView.layer.backgroundColor = [UIColor clearColor].CGColor;
-        [self.animationView addSubview:containerView];
+        [self.contentView addSubview:containerView];
         
         containerView.translatesAutoresizingMaskIntoConstraints = NO;
         {
-            NSLayoutConstraint *const1 = [NSLayoutConstraint constraintWithItem:containerView attribute:(NSLayoutAttributeCenterX) relatedBy:(NSLayoutRelationEqual) toItem:self.animationView attribute:(NSLayoutAttributeCenterX) multiplier:1.0 constant:0];
-            NSLayoutConstraint *const2 = [NSLayoutConstraint constraintWithItem:containerView attribute:(NSLayoutAttributeCenterY) relatedBy:(NSLayoutRelationEqual) toItem:self.animationView attribute:(NSLayoutAttributeCenterY) multiplier:1.0 constant:0];
-            [self.animationView addConstraint:const1];
-            [self.animationView addConstraint:const2];
+            NSLayoutConstraint *const1 = [NSLayoutConstraint constraintWithItem:containerView attribute:(NSLayoutAttributeCenterX) relatedBy:(NSLayoutRelationEqual) toItem:self.contentView attribute:(NSLayoutAttributeCenterX) multiplier:1.0 constant:0];
+            NSLayoutConstraint *const2 = [NSLayoutConstraint constraintWithItem:containerView attribute:(NSLayoutAttributeCenterY) relatedBy:(NSLayoutRelationEqual) toItem:self.contentView attribute:(NSLayoutAttributeCenterY) multiplier:1.0 constant:0];
+            [self.contentView addConstraint:const1];
+            [self.contentView addConstraint:const2];
         }
         
         _titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 15, 15)];

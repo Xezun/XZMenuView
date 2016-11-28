@@ -7,47 +7,43 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		88355F521DE82B3600332A33 /* TestLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 88355F511DE82B3600332A33 /* TestLayout.m */; };
 		883F98951DE526E10028B43A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 883F98941DE526E10028B43A /* main.m */; };
 		883F98981DE526E10028B43A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 883F98971DE526E10028B43A /* AppDelegate.m */; };
-		883F989B1DE526E10028B43A /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 883F989A1DE526E10028B43A /* ViewController.m */; };
+		883F989B1DE526E10028B43A /* DefaultViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 883F989A1DE526E10028B43A /* DefaultViewController.m */; };
 		883F989E1DE526E10028B43A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 883F989C1DE526E10028B43A /* Main.storyboard */; };
 		883F98A01DE526E10028B43A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 883F989F1DE526E10028B43A /* Assets.xcassets */; };
 		883F98A31DE526E10028B43A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 883F98A11DE526E10028B43A /* LaunchScreen.storyboard */; };
 		883F98C51DE527970028B43A /* XZMenuView.m in Sources */ = {isa = PBXBuildFile; fileRef = 883F98C21DE527970028B43A /* XZMenuView.m */; };
-		883F98C61DE527970028B43A /* XZTextMenuItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 883F98C41DE527970028B43A /* XZTextMenuItemView.m */; };
+		883F98C61DE527970028B43A /* XZPlainMenuItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 883F98C41DE527970028B43A /* XZPlainMenuItemView.m */; };
 		883F98C91DE534D90028B43A /* ContentViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 883F98C81DE534D90028B43A /* ContentViewController.m */; };
 		883F98CC1DE539DD0028B43A /* MenuItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 883F98CB1DE539DD0028B43A /* MenuItemView.m */; };
-		883F98CF1DE54B850028B43A /* TestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 883F98CE1DE54B850028B43A /* TestViewController.m */; };
+		DDF64EE81DEC8C6300A681DB /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DDF64EE71DEC8C6300A681DB /* ViewController.m */; };
+		DDF64EED1DEC8F4900A681DB /* CustomViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DDF64EEC1DEC8F4900A681DB /* CustomViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		88355F501DE82B3600332A33 /* TestLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestLayout.h; sourceTree = "<group>"; };
-		88355F511DE82B3600332A33 /* TestLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestLayout.m; sourceTree = "<group>"; };
-		88359E151DEC0EDD00391DBC /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/Main.storyboard; sourceTree = "<group>"; };
-		88359E161DEC0EDD00391DBC /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		88359E171DEC0EEC00391DBC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		88359E181DEC0EF500391DBC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		883F98901DE526E10028B43A /* XZMenuView.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XZMenuView.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		883F98941DE526E10028B43A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		883F98961DE526E10028B43A /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		883F98971DE526E10028B43A /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		883F98991DE526E10028B43A /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		883F989A1DE526E10028B43A /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		883F98991DE526E10028B43A /* DefaultViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DefaultViewController.h; sourceTree = "<group>"; };
+		883F989A1DE526E10028B43A /* DefaultViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DefaultViewController.m; sourceTree = "<group>"; };
 		883F989F1DE526E10028B43A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		883F98A41DE526E10028B43A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		883F98C11DE527970028B43A /* XZMenuView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XZMenuView.h; sourceTree = "<group>"; };
 		883F98C21DE527970028B43A /* XZMenuView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XZMenuView.m; sourceTree = "<group>"; };
-		883F98C31DE527970028B43A /* XZTextMenuItemView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XZTextMenuItemView.h; sourceTree = "<group>"; };
-		883F98C41DE527970028B43A /* XZTextMenuItemView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XZTextMenuItemView.m; sourceTree = "<group>"; };
+		883F98C31DE527970028B43A /* XZPlainMenuItemView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XZPlainMenuItemView.h; sourceTree = "<group>"; };
+		883F98C41DE527970028B43A /* XZPlainMenuItemView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XZPlainMenuItemView.m; sourceTree = "<group>"; };
 		883F98C71DE534D90028B43A /* ContentViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContentViewController.h; sourceTree = "<group>"; };
 		883F98C81DE534D90028B43A /* ContentViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContentViewController.m; sourceTree = "<group>"; };
 		883F98CA1DE539DD0028B43A /* MenuItemView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuItemView.h; sourceTree = "<group>"; };
 		883F98CB1DE539DD0028B43A /* MenuItemView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MenuItemView.m; sourceTree = "<group>"; };
-		883F98CD1DE54B850028B43A /* TestViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestViewController.h; sourceTree = "<group>"; };
-		883F98CE1DE54B850028B43A /* TestViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestViewController.m; sourceTree = "<group>"; };
-		88B80E9E1DE6BB1D00F65950 /* ar */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = ar; path = ar.lproj/Main.storyboard; sourceTree = "<group>"; };
-		88B80E9F1DE6BB2D00F65950 /* ar */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = ar; path = ar.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		DDF64EE61DEC8C6300A681DB /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		DDF64EE71DEC8C6300A681DB /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		DDF64EEB1DEC8F4900A681DB /* CustomViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomViewController.h; sourceTree = "<group>"; };
+		DDF64EEC1DEC8F4900A681DB /* CustomViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,16 +79,10 @@
 				883F98C01DE527970028B43A /* XZMenuView */,
 				883F98961DE526E10028B43A /* AppDelegate.h */,
 				883F98971DE526E10028B43A /* AppDelegate.m */,
-				883F98991DE526E10028B43A /* ViewController.h */,
-				883F989A1DE526E10028B43A /* ViewController.m */,
-				883F98C71DE534D90028B43A /* ContentViewController.h */,
-				883F98C81DE534D90028B43A /* ContentViewController.m */,
-				883F98CA1DE539DD0028B43A /* MenuItemView.h */,
-				883F98CB1DE539DD0028B43A /* MenuItemView.m */,
-				883F98CD1DE54B850028B43A /* TestViewController.h */,
-				883F98CE1DE54B850028B43A /* TestViewController.m */,
-				88355F501DE82B3600332A33 /* TestLayout.h */,
-				88355F511DE82B3600332A33 /* TestLayout.m */,
+				DDF64EE61DEC8C6300A681DB /* ViewController.h */,
+				DDF64EE71DEC8C6300A681DB /* ViewController.m */,
+				DDF64EE91DEC8F1E00A681DB /* Default */,
+				DDF64EEA1DEC8F3C00A681DB /* Custom */,
 				883F989C1DE526E10028B43A /* Main.storyboard */,
 				883F989F1DE526E10028B43A /* Assets.xcassets */,
 				883F98A11DE526E10028B43A /* LaunchScreen.storyboard */,
@@ -115,11 +105,33 @@
 			children = (
 				883F98C11DE527970028B43A /* XZMenuView.h */,
 				883F98C21DE527970028B43A /* XZMenuView.m */,
-				883F98C31DE527970028B43A /* XZTextMenuItemView.h */,
-				883F98C41DE527970028B43A /* XZTextMenuItemView.m */,
+				883F98C31DE527970028B43A /* XZPlainMenuItemView.h */,
+				883F98C41DE527970028B43A /* XZPlainMenuItemView.m */,
 			);
 			name = XZMenuView;
 			path = ../../XZMenuView;
+			sourceTree = "<group>";
+		};
+		DDF64EE91DEC8F1E00A681DB /* Default */ = {
+			isa = PBXGroup;
+			children = (
+				883F98991DE526E10028B43A /* DefaultViewController.h */,
+				883F989A1DE526E10028B43A /* DefaultViewController.m */,
+				883F98C71DE534D90028B43A /* ContentViewController.h */,
+				883F98C81DE534D90028B43A /* ContentViewController.m */,
+			);
+			name = Default;
+			sourceTree = "<group>";
+		};
+		DDF64EEA1DEC8F3C00A681DB /* Custom */ = {
+			isa = PBXGroup;
+			children = (
+				DDF64EEB1DEC8F4900A681DB /* CustomViewController.h */,
+				DDF64EEC1DEC8F4900A681DB /* CustomViewController.m */,
+				883F98CA1DE539DD0028B43A /* MenuItemView.h */,
+				883F98CB1DE539DD0028B43A /* MenuItemView.m */,
+			);
+			name = Custom;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -163,7 +175,6 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				Base,
-				en,
 			);
 			mainGroup = 883F98871DE526E10028B43A;
 			productRefGroup = 883F98911DE526E10028B43A /* Products */;
@@ -193,14 +204,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				883F989B1DE526E10028B43A /* ViewController.m in Sources */,
-				88355F521DE82B3600332A33 /* TestLayout.m in Sources */,
-				883F98C61DE527970028B43A /* XZTextMenuItemView.m in Sources */,
+				883F989B1DE526E10028B43A /* DefaultViewController.m in Sources */,
+				883F98C61DE527970028B43A /* XZPlainMenuItemView.m in Sources */,
+				DDF64EE81DEC8C6300A681DB /* ViewController.m in Sources */,
 				883F98CC1DE539DD0028B43A /* MenuItemView.m in Sources */,
+				DDF64EED1DEC8F4900A681DB /* CustomViewController.m in Sources */,
 				883F98C91DE534D90028B43A /* ContentViewController.m in Sources */,
 				883F98981DE526E10028B43A /* AppDelegate.m in Sources */,
 				883F98C51DE527970028B43A /* XZMenuView.m in Sources */,
-				883F98CF1DE54B850028B43A /* TestViewController.m in Sources */,
 				883F98951DE526E10028B43A /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -211,8 +222,6 @@
 		883F989C1DE526E10028B43A /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				88B80E9E1DE6BB1D00F65950 /* ar */,
-				88359E151DEC0EDD00391DBC /* en */,
 				88359E171DEC0EEC00391DBC /* Base */,
 			);
 			name = Main.storyboard;
@@ -221,8 +230,6 @@
 		883F98A11DE526E10028B43A /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				88B80E9F1DE6BB2D00F65950 /* ar */,
-				88359E161DEC0EDD00391DBC /* en */,
 				88359E181DEC0EF500391DBC /* Base */,
 			);
 			name = LaunchScreen.storyboard;

@@ -31,9 +31,9 @@ typedef NS_ENUM(NSInteger, XZMenuViewIndicatorPosition) {
 @property (nonatomic, strong) __kindof UIView *leftView;
 @property (nonatomic, strong) __kindof UIView *rightView;
 
-@property (nonatomic) UIUserInterfaceLayoutDirection userInterfaceLayoutDirection; // -[UIApplication userInterfaceLayoutDirection] default.
+@property (nonatomic) UIUserInterfaceLayoutDirection userInterfaceLayoutDirection; // default value is -[UIApplication userInterfaceLayoutDirection].
 
-@property (nonatomic) XZMenuViewIndicatorStyle indicatorStyle;
+@property (nonatomic) XZMenuViewIndicatorStyle indicatorStyle; // default none.
 @property (nonatomic) XZMenuViewIndicatorPosition indicatorPosition;
 @property (nonatomic, strong) UIImage *indicatorImage;
 @property (nonatomic, strong) UIColor *indicatorColor;
@@ -53,9 +53,23 @@ typedef NS_ENUM(NSInteger, XZMenuViewIndicatorPosition) {
  */
 - (void)setSelectedIndex:(NSUInteger)selectedIndex animated:(BOOL)animated;
 
-- (void)beginTransition:(UIView *)relativeView;
+/**
+ Menu view will select a new item. Call this method to tell menu view which view is related to the current selected item.
+
+ @param relatedView The selected item related view
+ */
+- (void)beginTransition:(UIView *)relatedView;
+
+/**
+ Notice the menu view that the transition is finished.
+ */
 - (void)endTransition;
 
+/**
+ Reload data. The view will be updated in next runloop.
+
+ @param completion The handler when view finish reload.
+ */
 - (void)reloadData:(void (^)(BOOL finished))completion;;
 
 - (void)insertItemAtIndex:(NSInteger)index;
@@ -87,6 +101,7 @@ typedef NS_ENUM(NSInteger, XZMenuViewIndicatorPosition) {
 
 @protocol XZMenuViewDelegate <NSObject>
 
+@optional
 - (void)menuView:(XZMenuView *)menuView didSelectItemAtIndex:(NSInteger)index;
 - (CGFloat)menuView:(XZMenuView *)menuView widthForItemAtIndex:(NSInteger)index;
 
