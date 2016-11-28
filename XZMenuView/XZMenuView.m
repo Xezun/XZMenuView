@@ -241,7 +241,9 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
         CGRect frame = _indicatorImageView.frame;
         frame.origin.x = CGRectGetMinX(cell.frame);
         frame.size.width = CGRectGetWidth(cell.frame);
-        _indicatorImageView.frame = frame;
+        [UIView animateWithDuration:0.25 animations:^{
+            _indicatorImageView.frame = frame;
+        }];
         
         if ([_delegate respondsToSelector:@selector(menuView:didSelectItemAtIndex:)]) {
             [_delegate menuView:self didSelectItemAtIndex:_selectedIndex];
@@ -376,7 +378,10 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
     CGRect frame = _indicatorImageView.frame;
     frame.origin.x = CGRectGetMinX(cellFrame);
     frame.size.width = CGRectGetWidth(cellFrame);
-    _indicatorImageView.frame = frame;
+    
+    [UIView animateWithDuration:(animated ? 0.25 : 0) animations:^{
+        _indicatorImageView.frame = frame;
+    }];
 }
 
 - (void)XZ_deselectItemAtIndex:(NSInteger)index animated:(BOOL)animated {
