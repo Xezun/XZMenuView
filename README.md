@@ -1,6 +1,6 @@
 # XZMenuView
 
-## Auto adjusts user interface layout dirction
+## Auto adjusts user interface layout direction
 
 ### Left To Right Layout Direction
 ![Left To Right Layout Direction](Demo/LTR.gif "Left To Right Layout Direction") 
@@ -55,7 +55,7 @@ self.menuView.indicatorColor = [UIColor orangeColor];
 
 ## Transiting animation.
 ````Objective-C
-// if you use the `UIPageViewController` you may just do like this.
+// If you use the `UIPageViewController` you may just do like this.
 - (void)pageViewController:(UIPageViewController *)pageViewController willTransitionToViewControllers:(NSArray<UIViewController *> *)pendingViewControllers {
     [self.menuView beginTransition:[self viewControllerAtPage:self.menuView.selectedIndex].view]; // transition beigins
 }
