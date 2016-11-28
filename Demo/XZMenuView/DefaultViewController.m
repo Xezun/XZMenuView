@@ -24,13 +24,13 @@
 
 @end
 
-@implementation ViewController
+@implementation DefaultViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     
     self.menuItems = @[@"新闻联播", @"焦点访谈", @"生活圈梦想星搭档", @"人口", @"了不起的挑战", @"客从何处来", @"中国味道", @"我爱妈妈", @"挑战不可能", @"出彩中国人", @"等着我", @"舞出我人生", @"吉尼斯中国之夜", @"今日说法", @"人与自然", @"撒贝宁时间", @"喜乐街"];
-    CGRect frame = self.menuViewWrapper.frame;
+    CGRect frame = self.menuViewWrapper.bounds;
     frame.size.height -= 5.0;
     self.menuView = [[XZMenuView alloc] initWithFrame:frame];
     self.menuView.delegate = self;
@@ -38,7 +38,7 @@
     self.menuView.indicatorStyle = XZMenuViewIndicatorStyleDefault;
     self.menuView.indicatorPosition = XZMenuViewIndicatorPositionBottom;
     self.menuView.indicatorColor = [UIColor orangeColor];
-    [self.view addSubview:self.menuView];
+    [self.menuViewWrapper addSubview:self.menuView];
     
     UIPageViewControllerNavigationDirection d = UIPageViewControllerNavigationDirectionForward;
     if ([UIApplication sharedApplication].userInterfaceLayoutDirection == UIUserInterfaceLayoutDirectionRightToLeft) {
