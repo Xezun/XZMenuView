@@ -34,6 +34,7 @@ typedef NS_OPTIONS(NSUInteger, XZTextMenuItemViewTransitionOptions) {
 - (void)setTextColor:(UIColor *)titleColor forState:(UIControlState)state;
 - (UIColor *)textColorForState:(UIControlState)state;
 
+- (instancetype)initWithTransitionOptions:(XZTextMenuItemViewTransitionOptions)transitionOptions;
 - (instancetype)initWithFrame:(CGRect)frame transitionOptions:(XZTextMenuItemViewTransitionOptions)transitionOptions;
 
 @end

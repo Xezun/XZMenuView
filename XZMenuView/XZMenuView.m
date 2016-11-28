@@ -123,7 +123,7 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 - (void)layoutSubviews {
     [super layoutSubviews];
     
-    NSLog(@"%s", __func__);
+    //NSLog(@"%s", __func__);
     
     CGRect bounds = self.bounds, leftFrame = CGRectZero, rightFrame = CGRectZero;
     CGFloat menuHeight = CGRectGetHeight(bounds);
@@ -188,15 +188,10 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
             break;
     }
     
-    
-    
     CGFloat minimumWidth = [self minimumItemWidth];
     CGFloat totalWith = menuWidth - CGRectGetWidth(leftFrame) - CGRectGetWidth(rightFrame);
     minimumWidth = (totalWith / floor(totalWith / minimumWidth));
     _minimumItemWidth = minimumWidth;
-    //[(UICollectionViewFlowLayout *)_menuItemsView.collectionViewLayout setItemSize:CGSizeMake(minimumWidth, menuHeight)];
-    
-    
 }
 
 - (void)didMoveToWindow {
@@ -251,7 +246,7 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
     }
 }
 
-#pragma mark - <UICollectionViewDelegateFlowLayout>
+#pragma mark - <_XZMenuViewLayout>
 
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(_XZMenuViewLayout *)collectionViewLayout widthForItemAtIndex:(NSInteger)index {
     if ([_delegate respondsToSelector:@selector(menuView:widthForItemAtIndex:)]) {
@@ -345,7 +340,7 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
         _PDMenuViewItemCell *selectedCell = (_PDMenuViewItemCell *)[_menuItemsView cellForItemAtIndexPath:selectedIndexPath];
         selectedCell.transition = MIN(1.0, MAX(0, 1.0 - transition));
         rect1 = selectedCell.frame;
-        NSLog(@"🔴->⚪️：%ld, %@, %f", _selectedIndex, ([selectedCell menuItemView]), 1.0 - transition);
+        //NSLog(@"🔴->⚪️：%ld, %@, %f", _selectedIndex, ([selectedCell menuItemView]), 1.0 - transition);
     }
     
     if (pendingIndex < [_menuItemsView numberOfItemsInSection:0]) {
@@ -353,7 +348,7 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
         _PDMenuViewItemCell *pendingCell = (_PDMenuViewItemCell *)[_menuItemsView cellForItemAtIndexPath:pendingIndexPath];
         pendingCell.transition = MIN(1.0, MAX(0, transition));
         rect2 = pendingCell.frame;
-        NSLog(@"⚪️->🔴：%ld, %@, %f", pendingIndex, ([pendingCell menuItemView]), transition);
+        //NSLog(@"⚪️->🔴：%ld, %@, %f", pendingIndex, ([pendingCell menuItemView]), transition);
     }
     
     rect.origin.x = CGRectGetMinX(rect1) + (CGRectGetMinX(rect2) - CGRectGetMinX(rect1)) * transition;
@@ -722,7 +717,7 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 - (void)prepareLayout {
     [super prepareLayout];
     
-    NSLog(@"%s", __func__);
+    //NSLog(@"%s", __func__);
     
     _itemCount = [self.collectionView.dataSource collectionView:self.collectionView numberOfItemsInSection:0];
     

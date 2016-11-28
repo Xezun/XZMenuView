@@ -9,16 +9,12 @@
 #import "XZTextMenuItemView.h"
 
 static NSString *const XZTextMenuItemViewAnimationKey = @"XZTextMenuItemViewAnimationKey";
-//static NSString *const XZTextMenuItemViewTextColorAnimationKey = @"XZTextMenuItemViewAnimationKey.Color";
-//static NSString *const XZTextMenuItemViewTextScaleAnimationKey = @"XZTextMenuItemViewAnimationKey.Scale";
 
 static CALayer *XZTextMenuItemViewContentLayer(XZTextMenuItemView * _Nonnull view, BOOL lazyLoad);
 static CFMutableDictionaryRef XZTextMenuItemViewStateColors(XZTextMenuItemView * _Nonnull view, BOOL lazyLoad);
 
 /** 查询 XZTextMenuItemView 当前是否需要更新动画效果，并同时设置新值。 */
 static BOOL XZTextMenuItemViewNeedsUpdateAnimation(XZTextMenuItemView * _Nonnull view, BOOL setNeeds);
-
-
 
 
 @interface _XZTextMenuItemViewLabel : UILabel
@@ -50,6 +46,10 @@ static BOOL XZTextMenuItemViewNeedsUpdateAnimation(XZTextMenuItemView * _Nonnull
     return self;
 }
 
+- (instancetype)initWithTransitionOptions:(XZTextMenuItemViewTransitionOptions)transitionOptions {
+    return [self initWithFrame:CGRectMake(0, 0, 44.0, 44.0) transitionOptions:transitionOptions];
+}
+
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
     if (self) {
@@ -78,7 +78,6 @@ static BOOL XZTextMenuItemViewNeedsUpdateAnimation(XZTextMenuItemView * _Nonnull
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    //NSLog(@"<%p: %@>: %s", self, _textLabel.text, __func__);
     
     [CATransaction setDisableActions:YES];
     CALayer *contentLayer = XZTextMenuItemViewContentLayer(self, NO);
@@ -113,7 +112,6 @@ static BOOL XZTextMenuItemViewNeedsUpdateAnimation(XZTextMenuItemView * _Nonnull
         _transition = transition;
         CALayer *contentLayer = XZTextMenuItemViewContentLayer(self, NO);
         CAAnimation *animation = [contentLayer animationForKey:XZTextMenuItemViewAnimationKey];
-        //NSLog(@"<%p: %@, contentLayer: {beiginTime=%f, timeOffset=%f}, animation: {beginTime=%f, timeOffset=%f}>", self, _textLabel.text, contentLayer.beginTime, contentLayer.timeOffset, animation.beginTime, animation.timeOffset);
         contentLayer.timeOffset = animation.beginTime + transition;
     }
 }
@@ -140,11 +138,10 @@ static BOOL XZTextMenuItemViewNeedsUpdateAnimation(XZTextMenuItemView * _Nonnull
 #pragma mark - <CAAnimationDelegate>
 
 - (void)animationDidStart:(CAAnimation *)anim {
-    //NSLog(@"%s: %@", __func__, [(CAAnimationGroup *)anim animations]);
+    
 }
 
 - (void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag {
-    //NSLog(@"%s: %@ %@", __func__, [(CAAnimationGroup *)anim animations], (flag ? @"YES" : @"NO"));
     CALayer *contentLayer = XZTextMenuItemViewContentLayer(self, NO);
     contentLayer.speed = 0;
     contentLayer.timeOffset = anim.beginTime + _transition;
@@ -164,8 +161,6 @@ static BOOL XZTextMenuItemViewNeedsUpdateAnimation(XZTextMenuItemView * _Nonnull
 - (void)updateTransitonAppearanceIfNeeded {
     if (XZTextMenuItemViewNeedsUpdateAnimation(self, NO)) {
         [CATransaction setDisableActions:YES];
-        
-        //NSLog(@"<%p: %@>: %s", self, _textLabel.text, __func__);
         
         CALayer *contentLayer = XZTextMenuItemViewContentLayer(self, NO);
         contentLayer.timeOffset = 0;

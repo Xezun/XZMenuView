@@ -80,7 +80,7 @@ typedef NS_ENUM(NSInteger, XZMenuViewIndicatorPosition) {
 
 @required
 - (NSInteger)numberOfItemsInMenuView:(XZMenuView *)meunView;
-- (__kindof UIView<XZMenuItemView> *)menuView:(XZMenuView *)menuView viewForItemAtIndex:(NSInteger)index reusingView:(__kindof UIView<XZMenuItemView> *)reusingView;
+- (__kindof UIView *)menuView:(XZMenuView *)menuView viewForItemAtIndex:(NSInteger)index reusingView:(__kindof UIView *)reusingView;
 
 @end
 
