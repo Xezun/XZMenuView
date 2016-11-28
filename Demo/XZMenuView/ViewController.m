@@ -98,7 +98,7 @@
     return self.menuItems.count;
 }
 
-- (UIView<XZMenuItemView> *)menuView:(XZMenuView *)menuView viewForItemAtIndex:(NSInteger)index reusingView:(__kindof UIView<XZMenuItemView> *)reusingView {
+- (UIView *)menuView:(XZMenuView *)menuView viewForItemAtIndex:(NSInteger)index reusingView:(__kindof UIView *)reusingView {
     XZTextMenuItemView *menuItemView = (XZTextMenuItemView *)reusingView;
     if (menuItemView == nil) {
         menuItemView = [[XZTextMenuItemView alloc] initWithTransitionOptions:XZTextMenuItemViewTransitionOptionScale | XZTextMenuItemViewTransitionOptionColor];
@@ -109,7 +109,7 @@
     NSString *menuItem = [self menuItems][index];
     menuItemView.textLabel.text = menuItem;
     
-    return (UIView<XZMenuItemView> *)menuItemView;
+    return menuItemView;
 }
 
 #pragma mark - XZMenuViewDelegate

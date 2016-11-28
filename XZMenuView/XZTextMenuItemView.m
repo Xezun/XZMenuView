@@ -89,8 +89,6 @@ static BOOL XZTextMenuItemViewNeedsUpdateAnimation(XZTextMenuItemView * _Nonnull
 
 - (void)didMoveToWindow {
     [super didMoveToWindow];
-    
-    
 }
 
 - (void)setTextColor:(UIColor *)titleColor forState:(UIControlState)state {
