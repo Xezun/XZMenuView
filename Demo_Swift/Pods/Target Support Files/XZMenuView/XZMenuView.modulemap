@@ -1,0 +1,6 @@
+framework module XZMenuView {
+  umbrella header "XZMenuView-umbrella.h"
+
+  export *
+  module * { export * }
+}
