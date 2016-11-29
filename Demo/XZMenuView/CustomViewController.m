@@ -85,10 +85,12 @@
 }
 
 - (void)pageViewController:(UIPageViewController *)pageViewController didFinishAnimating:(BOOL)finished previousViewControllers:(NSArray<ContentViewController *> *)previousViewControllers transitionCompleted:(BOOL)completed {
-    [self.menuView endTransition];
-    if (finished && completed) {
-        NSInteger currentPage = [self pageOfViewController:pageViewController.viewControllers.lastObject];
-        [self.menuView setSelectedIndex:currentPage animated:YES];
+    if (finished) {
+        [self.menuView endTransition];
+        if (completed) {
+            NSInteger currentPage = [self pageOfViewController:pageViewController.viewControllers.lastObject];
+            [self.menuView setSelectedIndex:currentPage animated:YES];
+        }
     }
 }
 

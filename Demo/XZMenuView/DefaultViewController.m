@@ -60,7 +60,6 @@
         self.pageViewController = segue.destinationViewController;
         self.pageViewController.delegate = self;
         self.pageViewController.dataSource = self;
-        
     }
 }
 
@@ -81,14 +80,18 @@
 #pragma mark - UIPageViewControllerDelegate
 
 - (void)pageViewController:(UIPageViewController *)pageViewController willTransitionToViewControllers:(NSArray<UIViewController *> *)pendingViewControllers {
+    //NSLog(@"🔴");
     [self.menuView beginTransition:[self viewControllerAtPage:self.menuView.selectedIndex].view];
 }
 
 - (void)pageViewController:(UIPageViewController *)pageViewController didFinishAnimating:(BOOL)finished previousViewControllers:(NSArray<ContentViewController *> *)previousViewControllers transitionCompleted:(BOOL)completed {
-    [self.menuView endTransition];
-    if (finished && completed) {
-        NSInteger currentPage = [self pageOfViewController:pageViewController.viewControllers.lastObject];
-        [self.menuView setSelectedIndex:currentPage animated:YES];
+    //NSLog(@"⚪️finished=%@, completed=%@", (finished?@"YES":@"NO"), (completed?@"YES":@"NO"));
+    if (finished) {
+        [self.menuView endTransition];
+        if (completed) {
+            NSInteger currentPage = [self pageOfViewController:pageViewController.viewControllers.lastObject];
+            [self.menuView setSelectedIndex:currentPage animated:YES];
+        }
     }
 }
 

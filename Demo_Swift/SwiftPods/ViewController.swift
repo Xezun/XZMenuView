@@ -118,9 +118,11 @@ extension ViewController: UIPageViewControllerDelegate, UIPageViewControllerData
     }
     
     func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
-        self.menuView.endTransition();
-        if finished && completed {
-            self.menuView.setSelectedIndex(UInt(self.page(of: pageViewController.viewControllers?.last)!), animated: true);
+        if finished {
+            self.menuView.endTransition();
+            if finished {
+                self.menuView.setSelectedIndex(UInt(self.page(of: pageViewController.viewControllers?.last)!), animated: true);
+            }
         }
     }
 }

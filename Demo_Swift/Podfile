@@ -7,6 +7,6 @@ target 'SwiftPods' do
 
   # Pods for SwiftPods
 
-  pod "XZMenuView"
+  pod "XZMenuView", :path => '../'
 
 end

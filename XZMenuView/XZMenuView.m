@@ -11,7 +11,7 @@
 NSInteger const XZMenuViewNoSelection = -1;
 
 
-@interface _PDMenuViewItemCell : UICollectionViewCell <XZMenuItemView>
+@interface _XZMenuViewItemCell : UICollectionViewCell <XZMenuItemView>
 
 @property (nonatomic, strong) UIView<XZMenuItemView> *menuItemView;
 
@@ -26,6 +26,7 @@ NSInteger const XZMenuViewNoSelection = -1;
 @property (nonatomic, weak) UIView *view;
 @property (nonatomic) CGRect rect;
 @property (nonatomic) CGRect transitingRect;
+@property (nonatomic, weak) _XZMenuViewItemCell *pendingCell;
 
 + (instancetype)transitionLinkWithTarget:(id)target selector:(SEL)selector;
 
@@ -115,7 +116,7 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
     _menuItemsView.showsVerticalScrollIndicator   = NO;
     _menuItemsView.alwaysBounceVertical           = NO;
     _menuItemsView.alwaysBounceHorizontal         = YES;
-    [_menuItemsView registerClass:[_PDMenuViewItemCell class] forCellWithReuseIdentifier:XZMenuViewCellIdentifier];
+    [_menuItemsView registerClass:[_XZMenuViewItemCell class] forCellWithReuseIdentifier:XZMenuViewCellIdentifier];
     [self addSubview:_menuItemsView];
     _menuItemsView.delegate   = self;
     _menuItemsView.dataSource = self;
@@ -123,8 +124,6 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    
-    //NSLog(@"%s", __func__);
     
     CGRect bounds = self.bounds, leftFrame = CGRectZero, rightFrame = CGRectZero;
     CGFloat menuHeight = CGRectGetHeight(bounds);
@@ -214,7 +213,7 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 }
 
 - (__kindof UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    _PDMenuViewItemCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:XZMenuViewCellIdentifier forIndexPath:indexPath];
+    _XZMenuViewItemCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:XZMenuViewCellIdentifier forIndexPath:indexPath];
     
     cell.menuItemView = [_dataSource menuView:self viewForItemAtIndex:indexPath.item reusingView:cell.menuItemView];
     
@@ -270,14 +269,13 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
     self.transitionLink.view = relatedView;
     self.transitionLink.rect = [relatedView convertRect:relatedView.bounds toView:relatedView.window];
     self.transitionLink.transitingRect = self.transitionLink.rect;
+    self.transitionLink.pendingCell = nil;
     self.transitionLink.paused = (relatedView == nil);
 }
 
 - (void)endTransition {
     _transitionLink.paused = YES;
-    _transitionLink.view = nil;
-    _transitionLink.rect = CGRectZero;
-    _transitionLink.transitingRect = CGRectZero;
+    [self XZ_handleTransitionLink:_transitionLink ended:YES];
 }
 
 - (void)reloadData:(void (^)(BOOL))completion {
@@ -299,13 +297,13 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 }
 
 - (UIView *)viewForItemAtIndex:(NSUInteger)index {
-    _PDMenuViewItemCell *cell = (_PDMenuViewItemCell *)[_menuItemsView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:index inSection:0]];
+    _XZMenuViewItemCell *cell = (_XZMenuViewItemCell *)[_menuItemsView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:index inSection:0]];
     return [cell menuItemView];
 }
 
 #pragma mark - actions
 
-- (void)transitionLinkAction:(_XZMenuViewTransitionLink *)transitionLink {
+- (void)XZ_handleTransitionLink:(_XZMenuViewTransitionLink *)transitionLink ended:(BOOL)ended {
     CGRect transitionViewRect = [transitionLink.view convertRect:transitionLink.view.bounds toView:transitionLink.view.window];
     if (CGRectEqualToRect(transitionLink.transitingRect, transitionViewRect)) {
         return;
@@ -318,7 +316,7 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
         case UIUserInterfaceLayoutDirectionLeftToRight:
             transition = (CGRectGetMinX(transitionLink.rect) - CGRectGetMinX(transitionViewRect)) / CGRectGetWidth(transitionViewRect);
             break;
-        
+            
         case UIUserInterfaceLayoutDirectionRightToLeft:
             transition = (CGRectGetMinX(transitionViewRect) - CGRectGetMinX(transitionLink.rect)) / CGRectGetWidth(transitionViewRect);
             break;
@@ -331,26 +329,47 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
         pendingIndex = _selectedIndex - 1;
     }
     
-    CGRect indicatorFromRect = CGRectZero;
+    if (ended) {
+        if (transition < 0.5) {
+            transition = 0;
+        } else {
+            transition = 1.0;
+        }
+    }
     
+    
+    CGRect indicatorFromRect = CGRectZero;
     if (_selectedIndex != XZMenuViewNoSelection) {
         NSIndexPath *selectedIndexPath = [NSIndexPath indexPathForItem:_selectedIndex inSection:0];
-        _PDMenuViewItemCell *selectedCell = (_PDMenuViewItemCell *)[_menuItemsView cellForItemAtIndexPath:selectedIndexPath];
+        _XZMenuViewItemCell *selectedCell = (_XZMenuViewItemCell *)[_menuItemsView cellForItemAtIndexPath:selectedIndexPath];
         selectedCell.transition = MIN(1.0, MAX(0, 1.0 - transition));
         indicatorFromRect = selectedCell.frame;
     }
     
+    CGRect indicatorToRect = CGRectZero;
     if (pendingIndex < [_menuItemsView numberOfItemsInSection:0]) {
+        transition = MIN(1.0, MAX(0, transition));
         NSIndexPath *pendingIndexPath = [NSIndexPath indexPathForItem:pendingIndex inSection:0];
-        _PDMenuViewItemCell *pendingCell = (_PDMenuViewItemCell *)[_menuItemsView cellForItemAtIndexPath:pendingIndexPath];
-        pendingCell.transition = MIN(1.0, MAX(0, transition));
-        CGRect indicatorToRect = pendingCell.frame;
-        
-        CGRect indicatorRect = _indicatorImageView.frame;
-        indicatorRect.origin.x = CGRectGetMinX(indicatorFromRect) + (CGRectGetMinX(indicatorToRect) - CGRectGetMinX(indicatorFromRect)) * transition;
-        indicatorRect.size.width = CGRectGetWidth(indicatorFromRect) + (CGRectGetWidth(indicatorToRect) - CGRectGetWidth(indicatorFromRect)) * transition;
-        _indicatorImageView.frame = indicatorRect;
+        _XZMenuViewItemCell *pendingCell = (_XZMenuViewItemCell *)[_menuItemsView cellForItemAtIndexPath:pendingIndexPath];
+        indicatorToRect = pendingCell.frame;
+        if (transitionLink.pendingCell != pendingCell) {
+            transitionLink.pendingCell.transition = transition;
+            transitionLink.pendingCell = pendingCell;
+        }
+        transitionLink.pendingCell.transition = transition;
+    } else if (transitionLink.pendingCell != nil) {
+        transitionLink.pendingCell.transition = MIN(1.0, MAX(0, transition));
+        transitionLink.pendingCell = nil;
     }
+    
+    CGRect indicatorRect = _indicatorImageView.frame;
+    indicatorRect.origin.x = CGRectGetMinX(indicatorFromRect) + (CGRectGetMinX(indicatorToRect) - CGRectGetMinX(indicatorFromRect)) * transition;
+    indicatorRect.size.width = CGRectGetWidth(indicatorFromRect) + (CGRectGetWidth(indicatorToRect) - CGRectGetWidth(indicatorFromRect)) * transition;
+    _indicatorImageView.frame = indicatorRect;
+}
+
+- (void)XZ_transitionLinkAction:(_XZMenuViewTransitionLink *)transitionLink {
+    [self XZ_handleTransitionLink:transitionLink ended:NO];
 }
 
 #pragma mark - Private Methods
@@ -457,7 +476,7 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
     if (_transitionLink != nil) {
         return _transitionLink;
     }
-    _transitionLink = [_XZMenuViewTransitionLink transitionLinkWithTarget:self selector:@selector(transitionLinkAction:)];
+    _transitionLink = [_XZMenuViewTransitionLink transitionLinkWithTarget:self selector:@selector(XZ_transitionLinkAction:)];
     _transitionLink.preferredFramesPerSecond = 50;
     _transitionLink.paused = YES;
     return _transitionLink;
@@ -530,11 +549,11 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 
 #pragma mark - ==================
 
-@interface _PDMenuViewItemCell ()
+@interface _XZMenuViewItemCell ()
 
 @end
 
-@implementation _PDMenuViewItemCell
+@implementation _XZMenuViewItemCell
 
 @synthesize transition = _transition;
 
@@ -717,8 +736,6 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 
 - (void)prepareLayout {
     [super prepareLayout];
-    
-    //NSLog(@"%s", __func__);
     
     _itemCount = [self.collectionView.dataSource collectionView:self.collectionView numberOfItemsInSection:0];
     
