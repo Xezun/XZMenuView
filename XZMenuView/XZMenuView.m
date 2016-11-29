@@ -331,25 +331,26 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
         pendingIndex = _selectedIndex - 1;
     }
     
-    CGRect rect1, rect2, rect = _indicatorImageView.frame;
+    CGRect indicatorFromRect = CGRectZero;
     
     if (_selectedIndex != XZMenuViewNoSelection) {
         NSIndexPath *selectedIndexPath = [NSIndexPath indexPathForItem:_selectedIndex inSection:0];
         _PDMenuViewItemCell *selectedCell = (_PDMenuViewItemCell *)[_menuItemsView cellForItemAtIndexPath:selectedIndexPath];
         selectedCell.transition = MIN(1.0, MAX(0, 1.0 - transition));
-        rect1 = selectedCell.frame;
+        indicatorFromRect = selectedCell.frame;
     }
     
     if (pendingIndex < [_menuItemsView numberOfItemsInSection:0]) {
         NSIndexPath *pendingIndexPath = [NSIndexPath indexPathForItem:pendingIndex inSection:0];
         _PDMenuViewItemCell *pendingCell = (_PDMenuViewItemCell *)[_menuItemsView cellForItemAtIndexPath:pendingIndexPath];
         pendingCell.transition = MIN(1.0, MAX(0, transition));
-        rect2 = pendingCell.frame;
+        CGRect indicatorToRect = pendingCell.frame;
+        
+        CGRect indicatorRect = _indicatorImageView.frame;
+        indicatorRect.origin.x = CGRectGetMinX(indicatorFromRect) + (CGRectGetMinX(indicatorToRect) - CGRectGetMinX(indicatorFromRect)) * transition;
+        indicatorRect.size.width = CGRectGetWidth(indicatorFromRect) + (CGRectGetWidth(indicatorToRect) - CGRectGetWidth(indicatorFromRect)) * transition;
+        _indicatorImageView.frame = indicatorRect;
     }
-    
-    rect.origin.x = CGRectGetMinX(rect1) + (CGRectGetMinX(rect2) - CGRectGetMinX(rect1)) * transition;
-    rect.size.width = CGRectGetWidth(rect1) + (CGRectGetWidth(rect2) - CGRectGetWidth(rect1)) * transition;
-    _indicatorImageView.frame = rect;
 }
 
 #pragma mark - Private Methods
