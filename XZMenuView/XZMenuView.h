@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 UIKIT_EXTERN NSInteger const XZMenuViewNoSelection; // -1
 
 @protocol XZMenuViewDataSource, XZMenuViewDelegate, XZMenuItemView;
@@ -28,20 +30,20 @@ typedef NS_ENUM(NSInteger, XZMenuViewIndicatorPosition) {
 
 @interface XZMenuView : UIView
 
-@property (nonatomic, strong) __kindof UIView *leftView;
-@property (nonatomic, strong) __kindof UIView *rightView;
+@property (nonatomic, strong, nullable) __kindof UIView *leftView;
+@property (nonatomic, strong, nullable) __kindof UIView *rightView;
 
 @property (nonatomic) UIUserInterfaceLayoutDirection userInterfaceLayoutDirection; // default value is -[UIApplication userInterfaceLayoutDirection].
 
 @property (nonatomic) XZMenuViewIndicatorStyle indicatorStyle; // default none.
 @property (nonatomic) XZMenuViewIndicatorPosition indicatorPosition;
-@property (nonatomic, strong) UIImage *indicatorImage;
-@property (nonatomic, strong) UIColor *indicatorColor;
+@property (nonatomic, strong, nullable) UIImage *indicatorImage;
+@property (nonatomic, strong, nullable) UIColor *indicatorColor;
 
 @property (nonatomic) CGFloat minimumItemWidth; // default 49.0
 
-@property (nonatomic, weak) id<XZMenuViewDataSource> dataSource;
-@property (nonatomic, weak) id<XZMenuViewDelegate> delegate;
+@property (nonatomic, weak, nullable) id<XZMenuViewDataSource> dataSource;
+@property (nonatomic, weak, nullable) id<XZMenuViewDelegate> delegate;
 
 @property (nonatomic) NSInteger selectedIndex; // default XZMenuViewNoSelection, no item selected.
 
@@ -58,7 +60,7 @@ typedef NS_ENUM(NSInteger, XZMenuViewIndicatorPosition) {
 
  @param relatedView The selected item related view
  */
-- (void)beginTransition:(UIView *)relatedView;
+- (void)beginTransition:(nullable UIView *)relatedView;
 
 /**
  Notice the menu view that the transition is finished.
@@ -78,7 +80,7 @@ typedef NS_ENUM(NSInteger, XZMenuViewIndicatorPosition) {
 /**
  Maybe nil if the item is not visible.
  */
-- (__kindof UIView<XZMenuItemView> *)viewForItemAtIndex:(NSUInteger)index;
+- (__kindof UIView<XZMenuItemView>  * _Nullable)viewForItemAtIndex:(NSUInteger)index;
 
 @end
 
@@ -107,7 +109,7 @@ typedef NS_ENUM(NSInteger, XZMenuViewIndicatorPosition) {
 /**
  It is recommended that the custom item view comforms the `XZMenuItemView` protocol.
  */
-- (__kindof UIView *)menuView:(XZMenuView *)menuView viewForItemAtIndex:(NSInteger)index reusingView:(__kindof UIView *)reusingView;
+- (__kindof UIView * _Nullable)menuView:(XZMenuView *)menuView viewForItemAtIndex:(NSInteger)index reusingView:(__kindof UIView * _Nullable)reusingView;
 
 @end
 
@@ -121,3 +123,4 @@ typedef NS_ENUM(NSInteger, XZMenuViewIndicatorPosition) {
 @end
 
 
+NS_ASSUME_NONNULL_END
