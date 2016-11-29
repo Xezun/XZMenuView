@@ -338,7 +338,6 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
         _PDMenuViewItemCell *selectedCell = (_PDMenuViewItemCell *)[_menuItemsView cellForItemAtIndexPath:selectedIndexPath];
         selectedCell.transition = MIN(1.0, MAX(0, 1.0 - transition));
         rect1 = selectedCell.frame;
-        //NSLog(@"🔴->⚪️：%ld, %@, %f", _selectedIndex, ([selectedCell menuItemView]), 1.0 - transition);
     }
     
     if (pendingIndex < [_menuItemsView numberOfItemsInSection:0]) {
@@ -346,7 +345,6 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
         _PDMenuViewItemCell *pendingCell = (_PDMenuViewItemCell *)[_menuItemsView cellForItemAtIndexPath:pendingIndexPath];
         pendingCell.transition = MIN(1.0, MAX(0, transition));
         rect2 = pendingCell.frame;
-        //NSLog(@"⚪️->🔴：%ld, %@, %f", pendingIndex, ([pendingCell menuItemView]), transition);
     }
     
     rect.origin.x = CGRectGetMinX(rect1) + (CGRectGetMinX(rect2) - CGRectGetMinX(rect1)) * transition;
