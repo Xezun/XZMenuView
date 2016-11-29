@@ -33,7 +33,7 @@ typedef NS_OPTIONS(NSUInteger, XZPlainMenuItemViewTransitionOptions) {
 
 @property (nonatomic, strong, null_resettable) UILabel *textLabel;
 
-- (void)setTextColor:(UIColor * _Nullable)titleColor forState:(UIControlState)state;
+- (void)setTextColor:(UIColor * _Nullable)textColor forState:(UIControlState)state;
 - (UIColor * _Nullable)textColorForState:(UIControlState)state;
 
 - (instancetype)initWithTransitionOptions:(XZPlainMenuItemViewTransitionOptions)transitionOptions;

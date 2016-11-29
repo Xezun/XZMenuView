@@ -90,8 +90,8 @@ static BOOL XZPlainMenuItemViewNeedsUpdateAnimation(XZPlainMenuItemView * _Nonnu
     [super didMoveToWindow];
 }
 
-- (void)setTextColor:(UIColor *)titleColor forState:(UIControlState)state {
-    CFDictionarySetValue(XZPlainMenuItemViewStateColors(self, YES), (__bridge const void *)(@(state)), (__bridge const void *)(titleColor));
+- (void)setTextColor:(UIColor *)textColor forState:(UIControlState)state {
+    CFDictionarySetValue(XZPlainMenuItemViewStateColors(self, YES), (__bridge const void *)(@(state)), (__bridge const void *)(textColor));
     [self setNeedsTransitonAppearanceUpdate];
 }
 
