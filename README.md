@@ -5,10 +5,10 @@
 
 ## 自适应当前 App 排版方向。Auto adjusts user interface layout direction
 
-1. 从左到右排版。 Left To Right Layout Direction
+### 从左到右排版。 Left To Right Layout Direction
 ![Left To Right Layout Direction](Demo/LTR.gif "Left To Right Layout Direction") 
 
-2. 从右到左到排版。 Right To Left Layout Direction
+### 从右到左到排版。 Right To Left Layout Direction
 ![Right To Left Layout Direction](Demo/RTL.gif "Right To Left Layout Direction") 
 
 ## 安装。 Install
