@@ -54,7 +54,7 @@ typedef NS_ENUM(NSInteger, XZMenuViewIndicatorPosition) {
 - (void)setSelectedIndex:(NSUInteger)selectedIndex animated:(BOOL)animated;
 
 /**
- Menu view will select a new item. Call this method to tell menu view which view is related to the current selected item.
+ Menu view will select a new item. Call this method to tell menu view which view is related to the current selected item. Menu view will observe the related view's frame to figure out the transition animation progress.
 
  @param relatedView The selected item related view
  */
@@ -75,16 +75,25 @@ typedef NS_ENUM(NSInteger, XZMenuViewIndicatorPosition) {
 - (void)insertItemAtIndex:(NSInteger)index;
 - (void)removeItemAtIndex:(NSInteger)index;
 
+/**
+ Maybe nil if the item is not visible.
+ */
 - (__kindof UIView<XZMenuItemView> *)viewForItemAtIndex:(NSUInteger)index;
 
 @end
 
-
+/**
+ The protocol `XZMenuItemView` defines several methods that a custom munu item view can be able to get the menu events.
+ */
 @protocol XZMenuItemView <NSObject>
 
 @optional
 @property (nonatomic, getter=isSelected) BOOL selected;
 @property (nonatomic, getter=isHighlighted) BOOL highlighted;
+
+/**
+ A progress from normal to selected. 0 ~ 1.0.
+ */
 @property (nonatomic) CGFloat transition;
 
 @end
@@ -94,6 +103,10 @@ typedef NS_ENUM(NSInteger, XZMenuViewIndicatorPosition) {
 
 @required
 - (NSInteger)numberOfItemsInMenuView:(XZMenuView *)meunView;
+
+/**
+ It is recommended that the custom item view comforms the `XZMenuItemView` protocol.
+ */
 - (__kindof UIView *)menuView:(XZMenuView *)menuView viewForItemAtIndex:(NSInteger)index reusingView:(__kindof UIView *)reusingView;
 
 @end

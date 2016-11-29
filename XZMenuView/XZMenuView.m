@@ -193,6 +193,10 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
     CGFloat totalWith = menuWidth - CGRectGetWidth(leftFrame) - CGRectGetWidth(rightFrame);
     minimumWidth = (totalWith / floor(totalWith / minimumWidth));
     _minimumItemWidth = minimumWidth;
+    
+    if (_selectedIndex != XZMenuViewNoSelection) {
+        [self XZ_selectItemAtIndex:_selectedIndex animated:YES];
+    }
 }
 
 - (void)didMoveToWindow {
@@ -229,15 +233,7 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
         
         _selectedIndex = indexPath.item;
         
-        if (_indicatorImageView) {
-            CGRect cellFrame = ([_menuItemsView.collectionViewLayout layoutAttributesForItemAtIndexPath:indexPath]).frame;
-            CGRect frame = _indicatorImageView.frame;
-            frame.origin.x = CGRectGetMinX(cellFrame);
-            frame.size.width = CGRectGetWidth(cellFrame);
-            [UIView animateWithDuration:0.25 animations:^{
-                _indicatorImageView.frame = frame;
-            }];
-        }
+        [self XZ_moveIndicatorToIndexPath:indexPath animated:YES];
         
         if ([_delegate respondsToSelector:@selector(menuView:didSelectItemAtIndex:)]) {
             [_delegate menuView:self didSelectItemAtIndex:_selectedIndex];
@@ -270,16 +266,18 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
     }
 }
 
-- (void)beginTransition:(UIView *)relativeView {
-    self.transitionLink.view = relativeView;
-    self.transitionLink.rect = [relativeView convertRect:relativeView.bounds toView:relativeView.window];
-    self.transitionLink.paused = (relativeView == nil);
+- (void)beginTransition:(UIView *)relatedView {
+    self.transitionLink.view = relatedView;
+    self.transitionLink.rect = [relatedView convertRect:relatedView.bounds toView:relatedView.window];
+    self.transitionLink.transitingRect = self.transitionLink.rect;
+    self.transitionLink.paused = (relatedView == nil);
 }
 
 - (void)endTransition {
     _transitionLink.paused = YES;
     _transitionLink.view = nil;
     _transitionLink.rect = CGRectZero;
+    _transitionLink.transitingRect = CGRectZero;
 }
 
 - (void)reloadData:(void (^)(BOOL))completion {
@@ -365,12 +363,16 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
 
 - (void)XZ_selectItemAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated {
     [_menuItemsView selectItemAtIndexPath:indexPath animated:animated scrollPosition:(UICollectionViewScrollPositionCenteredHorizontally)];
+    [self XZ_moveIndicatorToIndexPath:indexPath animated:animated];
+}
+
+- (void)XZ_moveIndicatorToIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated {
     if (_indicatorImageView) {
         CGRect cellFrame = ([_menuItemsView.collectionViewLayout layoutAttributesForItemAtIndexPath:indexPath]).frame;
         CGRect frame = _indicatorImageView.frame;
         frame.origin.x = CGRectGetMinX(cellFrame);
         frame.size.width = CGRectGetWidth(cellFrame);
-        [UIView animateWithDuration:0.25 animations:^{
+        [UIView animateWithDuration:(animated ? 0.25 : 0) animations:^{
             _indicatorImageView.frame = frame;
         }];
     }
@@ -457,7 +459,7 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
         return _transitionLink;
     }
     _transitionLink = [_XZMenuViewTransitionLink transitionLinkWithTarget:self selector:@selector(transitionLinkAction:)];
-    _transitionLink.preferredFramesPerSecond = 30;
+    _transitionLink.preferredFramesPerSecond = 50;
     _transitionLink.paused = YES;
     return _transitionLink;
 }
