@@ -21,6 +21,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad();
         self.menuView = XZMenuView(frame: self.menuWrapperView.bounds);
+        self.menuView.autoresizingMask = [.flexibleWidth, .flexibleHeight];
         menuView.dataSource = self;
         menuView.delegate = self;
         menuView.indicatorStyle = .default;
