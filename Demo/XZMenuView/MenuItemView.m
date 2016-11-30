@@ -82,13 +82,12 @@
     return self;
 }
 
-/*
-// Only override drawRect: if you perform custom drawing.
-// An empty implementation adversely affects performance during animation.
-- (void)drawRect:(CGRect)rect {
-    // Drawing code
+- (void)setTransition:(CGFloat)transition {
+    [super setTransition:transition];
+    // fix seperator width
+    CGFloat scale = transition * (self.scaleAspect.width - 1.0) + 1.0;
+    _seperatorView.transform = CGAffineTransformMakeScale(1.0 / scale, 1.0);
 }
-*/
 
 - (void)setTitle:(NSString *)title {
     self.titleLabel.text = title;

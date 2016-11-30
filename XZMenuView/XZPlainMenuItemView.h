@@ -24,8 +24,10 @@ typedef NS_OPTIONS(NSUInteger, XZPlainMenuItemViewTransitionOptions) {
 @property (nonatomic) XZPlainMenuItemViewTransitionOptions transitionOptions;
 @property (nonatomic, strong, readonly, nonnull) UIView *contentView;
 
+@property (nonatomic) CGSize scaleAspect; // default {1.10, 1.10} .
+
 @property (nonatomic, getter=isSelected) BOOL selected;
-@property (nonatomic, getter=isHighlighted) BOOL highlighted;
+@property (nonatomic, getter=isHighlighted) BOOL highlighted; // not implemente, has no effect so far
 @property (nonatomic) CGFloat transition;
 
 - (void)updateTransitonAppearanceIfNeeded;

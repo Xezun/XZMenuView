@@ -142,6 +142,23 @@ static BOOL XZPlainMenuItemViewNeedsUpdateAnimation(XZPlainMenuItemView * _Nonnu
     }
 }
 
+@synthesize scaleAspect = _scaleAspect;
+
+- (CGSize)scaleAspect {
+    if (_scaleAspect.height > 0 && _scaleAspect.width > 0) {
+        return _scaleAspect;
+    }
+    _scaleAspect = CGSizeMake(1.10, 1.10);
+    return _scaleAspect;
+}
+
+- (void)setScaleAspect:(CGSize)scaleAspect {
+    if (CGSizeEqualToSize(_scaleAspect, scaleAspect)) {
+        _scaleAspect = scaleAspect;
+        [self setNeedsTransitonAppearanceUpdate];
+    }
+}
+
 #pragma mark - <CAAnimationDelegate>
 
 - (void)animationDidStart:(CAAnimation *)anim {
@@ -202,7 +219,7 @@ static BOOL XZPlainMenuItemViewNeedsUpdateAnimation(XZPlainMenuItemView * _Nonnu
         if ((_transitionOptions & XZPlainMenuItemViewTransitionOptionScale) == XZPlainMenuItemViewTransitionOptionScale) {
             CABasicAnimation *transformAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
             transformAnimation.fromValue = [NSValue valueWithCATransform3D:CATransform3DMakeAffineTransform(CGAffineTransformIdentity)];
-            transformAnimation.toValue = [NSValue valueWithCATransform3D:CATransform3DMakeAffineTransform(CGAffineTransformMakeScale(1.10, 1.10))];
+            transformAnimation.toValue = [NSValue valueWithCATransform3D:CATransform3DMakeAffineTransform(CGAffineTransformMakeScale([self scaleAspect].width, [self scaleAspect].height))];
             
             if (animations == nil) {
                 animations = [[NSMutableArray alloc] init];

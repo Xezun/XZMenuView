@@ -33,6 +33,7 @@
     CGRect frame = self.menuViewWrapper.bounds;
     frame.size.height -= 5.0;
     self.menuView = [[XZMenuView alloc] initWithFrame:frame];
+    self.menuView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.menuView.delegate = self;
     self.menuView.dataSource = self;
     //self.menuView.indicatorStyle = XZMenuViewIndicatorStyleDefault;
