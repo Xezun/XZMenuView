@@ -29,11 +29,11 @@
 
 ## 代码示例。 How to use
 
-### 自定义的菜单视图。Customlize menu item view
-1. XZMenuView 使用类似 UITableView 的数据源方式，以方便实用自定义视图。
-2. 自定义视图如果需要响应菜单事件，需要实现 <XZMenuItemView> 协议。
-3. XZPlainMenuItemView 是一个对纯文本形式的菜单提供的自定义视图，提供了基本的纯文字菜单实现。
-4. 可以完全自定义或仅仅子类化一个 XZPlainMenuItemView 就能自定义一个不同风格的菜单，如 Demo 中的 MenuItemView 。
+### 自定义菜单视图。Customlize menu item view
+1. XZMenuView 不提供任何样式的菜单，开发者完全可自定义所需的样式。
+2. 在自定义视图中实现 \<XZMenuItemView\> 协议，可以接收一些基本事件，如selected、hightlighted、transiting。
+3. 自定义视图是通过类似 UITableView 的数据源方式提供给 XZMenuView 的，并且是复用的。
+4. 针对纯文本的菜单，提供了 XZPlainMenuItemView 视图，以满足一般情况下的需求，也可以对它继承，实现不同风格的菜单，如 Demo 中的 MenuItemView  就是一个例子。
 
 ````Objective-C
 // `XZPlainMenuItemView` is an example for pure text menu. You can use it directly or subclassing of it.
