@@ -3,12 +3,15 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![Platform](https://img.shields.io/badge/Platform-iOS-yellow.svg)](#)
 
-## 自适应当前 App 排版方向。Auto adjusts user interface layout direction
+## 特色 Feature
+1. 自适应当前 App 排版方向。Auto adjusts user interface layout direction
+2. 渐变的过渡效果。Transition effect.
 
-### 从左到右排版。 Left To Right Layout Direction
+## 演示
+1. 从左到右排版。 Left To Right Layout Direction<br>
 ![Left To Right Layout Direction](Demo/LTR.gif "Left To Right Layout Direction") 
 
-### 从右到左到排版。 Right To Left Layout Direction
+2. 从右到左到排版。 Right To Left Layout Direction<br>
 ![Right To Left Layout Direction](Demo/RTL.gif "Right To Left Layout Direction") 
 
 ## 安装。 Install
