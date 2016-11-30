@@ -7,7 +7,7 @@
 1. 自适应当前 App 排版方向。Auto adjusts user interface layout direction
 2. 渐变的过渡效果。Transition effect.
 
-## 演示
+## 演示 Demo
 1. 从左到右排版。 Left To Right Layout Direction<br>
 ![Left To Right Layout Direction](Demo/LTR.gif "Left To Right Layout Direction") 
 
