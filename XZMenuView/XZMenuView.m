@@ -490,6 +490,14 @@ static NSString *const XZMenuViewCellIdentifier = @"XZMenuViewCellIdentifier";
     return [(_XZMenuViewLayout *)_menuItemsView.collectionViewLayout userInterfaceLayoutDirection];
 }
 
+- (BOOL)isScrollEnabled {
+    return [_menuItemsView isScrollEnabled];
+}
+
+- (void)setScrollEnabled:(BOOL)scrollEnabled {
+    [_menuItemsView setScrollEnabled:scrollEnabled];
+}
+
 - (void)setIndicatorStyle:(XZMenuViewIndicatorStyle)indicatorStyle {
     if (_indicatorStyle != indicatorStyle) {
         _indicatorStyle = indicatorStyle;

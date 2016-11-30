@@ -35,6 +35,8 @@ typedef NS_ENUM(NSInteger, XZMenuViewIndicatorPosition) {
 
 @property (nonatomic) UIUserInterfaceLayoutDirection userInterfaceLayoutDirection; // default value is -[UIApplication userInterfaceLayoutDirection].
 
+@property (nonatomic, getter=isScrollEnabled) BOOL scrollEnabled;
+
 @property (nonatomic) XZMenuViewIndicatorStyle indicatorStyle; // default none.
 @property (nonatomic) XZMenuViewIndicatorPosition indicatorPosition;
 @property (nonatomic, strong, nullable) UIImage *indicatorImage;

@@ -12,7 +12,7 @@
 
 @property (nonatomic, strong) UILabel *titleLabel;
 @property (nonatomic, strong) UILabel *subtitleLabel;
-@property (nonatomic, strong) UIView *seperatorView;
+@property (nonatomic, strong) UIView *separatorView;
 
 @end
 
@@ -47,14 +47,14 @@
             [containerView addConstraints:consts2];
         }
         
-        _seperatorView = [[UIView alloc] init];
-        _seperatorView.backgroundColor = [UIColor whiteColor];
-        [containerView addSubview:_seperatorView];
+        _separatorView = [[UIView alloc] init];
+        _separatorView.backgroundColor = [UIColor whiteColor];
+        [containerView addSubview:_separatorView];
         
-        _seperatorView.translatesAutoresizingMaskIntoConstraints = NO;
+        _separatorView.translatesAutoresizingMaskIntoConstraints = NO;
         {
-            NSArray *consts1 = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[_seperatorView]|" options:(NSLayoutFormatAlignAllLeft) metrics:nil views:NSDictionaryOfVariableBindings(_seperatorView)];
-            NSArray *consts2 = [NSLayoutConstraint constraintsWithVisualFormat:@"H:[_titleLabel]-3-[_seperatorView(==0.5)]" options:(NSLayoutFormatDirectionLeadingToTrailing) metrics:nil views:NSDictionaryOfVariableBindings(_titleLabel, _seperatorView)];
+            NSArray *consts1 = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[_separatorView]|" options:(NSLayoutFormatAlignAllLeft) metrics:nil views:NSDictionaryOfVariableBindings(_separatorView)];
+            NSArray *consts2 = [NSLayoutConstraint constraintsWithVisualFormat:@"H:[_titleLabel]-3-[_separatorView(==0.5)]" options:(NSLayoutFormatDirectionLeadingToTrailing) metrics:nil views:NSDictionaryOfVariableBindings(_titleLabel, _separatorView)];
             [containerView addConstraints:consts1];
             [containerView addConstraints:consts2];
         }
@@ -75,7 +75,7 @@
             [containerView addConstraint:const1];
             [containerView addConstraint:const2];
             
-            NSArray *consts2 = [NSLayoutConstraint constraintsWithVisualFormat:@"H:[_seperatorView]-3-[_subtitleLabel(<=12)]|" options:(NSLayoutFormatDirectionLeadingToTrailing) metrics:nil views:NSDictionaryOfVariableBindings(_seperatorView, _subtitleLabel)];
+            NSArray *consts2 = [NSLayoutConstraint constraintsWithVisualFormat:@"H:[_separatorView]-3-[_subtitleLabel(<=12)]|" options:(NSLayoutFormatDirectionLeadingToTrailing) metrics:nil views:NSDictionaryOfVariableBindings(_separatorView, _subtitleLabel)];
             [containerView addConstraints:consts2];
         }
     }
@@ -86,7 +86,7 @@
     [super setTransition:transition];
     // fix seperator width
     CGFloat scale = transition * (self.scaleAspect.width - 1.0) + 1.0;
-    _seperatorView.transform = CGAffineTransformMakeScale(1.0 / scale, 1.0);
+    _separatorView.transform = CGAffineTransformMakeScale(1.0 / scale, 1.0);
 }
 
 - (void)setTitle:(NSString *)title {
