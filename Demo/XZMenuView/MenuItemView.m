@@ -85,7 +85,7 @@
 - (void)setTransition:(CGFloat)transition {
     [super setTransition:transition];
     // fix seperator width
-    CGFloat scale = transition * (self.scaleAspect.width - 1.0) + 1.0;
+    CGFloat scale = transition * (self.aspectScale.width - 1.0) + 1.0;
     _separatorView.transform = CGAffineTransformMakeScale(1.0 / scale, 1.0);
 }
 
