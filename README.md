@@ -17,13 +17,13 @@
 ## 安装。 Install
 ### 中文
 1. 将 cocoapods 更新至最新版本。
-2. 在 Podfile 中添加 `pod 'XZMenuView'`。
+2. 在 Podfile 中添加 `pod 'XZKit/XZMenuView'`。
 3. 执行 `pod install` 或 `pod update`。
 4. 导入 `XZMenuView.h`。
 
 ### 英文
 1. Update your cocoapods to latest version.
-2. Add `pod 'XZMenuView'` to your Podfile.
+2. Add `pod 'XZKit/XZMenuView'` to your Podfile.
 3. Run `pod install` or `pod update` in terminal.
 4. Import `XZMenuView.h` and user.
 
