@@ -82,7 +82,7 @@ typedef NS_ENUM(NSInteger, XZMenuViewIndicatorPosition) {
 /**
  Maybe nil if the item is not visible.
  */
-- (__kindof UIView<XZMenuItemView>  * _Nullable)viewForItemAtIndex:(NSUInteger)index;
+- (__kindof UIView * _Nullable)viewForItemAtIndex:(NSUInteger)index;
 
 @end
 
